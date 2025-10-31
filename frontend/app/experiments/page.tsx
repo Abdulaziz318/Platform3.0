@@ -86,11 +86,11 @@ export default function ExperimentsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800 border-green-300';
-      case 'running': return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'failed': return 'bg-red-100 text-red-800 border-red-300';
-      case 'cancelled': return 'bg-gray-100 text-gray-800 border-gray-300';
-      default: return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      case 'completed': return 'bg-green-50 text-green-700 border border-green-200';
+      case 'running': return 'bg-blue-50 text-blue-700 border border-blue-200';
+      case 'failed': return 'bg-red-50 text-red-700 border border-red-200';
+      case 'cancelled': return 'bg-zinc-100 text-zinc-700 border border-zinc-200';
+      default: return 'bg-yellow-50 text-yellow-700 border border-yellow-200';
     }
   };
 
@@ -108,10 +108,10 @@ export default function ExperimentsPage() {
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="flex items-center justify-center h-screen bg-white">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-lg text-gray-600 font-medium">Loading experiments...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-zinc-900 mx-auto"></div>
+            <p className="mt-4 text-sm text-zinc-600 font-medium">Loading experiments...</p>
           </div>
         </div>
       </ProtectedRoute>
@@ -120,158 +120,158 @@ export default function ExperimentsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-white py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">🧪 Simulation Dashboard</h1>
-              <p className="text-gray-600">
-                {experiments.length} {experiments.length === 1 ? 'simulation' : 'simulations'} total
+              <h1 className="text-3xl font-bold text-zinc-900 mb-2">Experiments</h1>
+              <p className="text-sm text-zinc-600">
+                {experiments.length} {experiments.length === 1 ? 'experiment' : 'experiments'} total
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={() => {
                   setAutoRefresh(!autoRefresh);
                   if (!autoRefresh) loadExperiments();
                 }}
-                className={`inline-flex items-center px-4 py-2 border-2 text-sm font-medium rounded-lg transition-all ${
-                  autoRefresh ? 'bg-blue-100 border-blue-500 text-blue-700' : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
+                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  autoRefresh ? 'bg-zinc-100 border border-zinc-300 text-zinc-900' : 'bg-white border border-zinc-200 text-zinc-600 hover:border-zinc-300'
                 }`}
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${autoRefresh ? 'animate-spin' : ''}`} />
-                {autoRefresh ? '🔁 Auto-refresh ON' : 'Auto-refresh'}
+                {autoRefresh ? 'Auto-refresh ON' : 'Auto-refresh'}
               </button>
               <button
                 onClick={() => router.push('/setup')}
-                className="inline-flex items-center px-6 py-2 text-sm font-semibold rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg"
+                className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg text-white bg-zinc-900 hover:bg-zinc-800 transition-colors"
               >
-                <Plus className="h-5 w-5 mr-2" />
-                New Simulation
+                <Plus className="h-4 w-4 mr-2" />
+                New Experiment
               </button>
             </div>
           </div>
 
           {experiments.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-300 shadow-md">
-              <div className="text-6xl mb-4">📭</div>
-              <p className="text-xl text-gray-600 mb-4">No simulations found</p>
-              <button onClick={() => router.push('/setup')} className="text-blue-600 hover:text-blue-500 font-semibold text-lg">
-                Create your first simulation →
+            <div className="text-center py-16 bg-white rounded-xl border border-zinc-200">
+              <div className="text-4xl mb-4">📭</div>
+              <p className="text-lg text-zinc-900 font-medium mb-2">No experiments found</p>
+              <button onClick={() => router.push('/setup')} className="text-zinc-600 hover:text-zinc-900 text-sm">
+                Create your first experiment →
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {experiments.map((exp) => (
-                <div key={exp.id} className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all border border-gray-200">
-                  <div className="p-6 cursor-pointer hover:bg-gray-50" onClick={() => toggleExpand(exp.id)}>
+                <div key={exp.id} className="bg-white rounded-lg border border-zinc-200 hover:border-zinc-300 transition-colors">
+                  <div className="p-5 cursor-pointer" onClick={() => toggleExpand(exp.id)}>
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-3">
                           {getStatusIcon(exp.status)}
-                          <h3 className="text-xl font-bold text-gray-900">📁 {exp.name}</h3>
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(exp.status)}`}>
+                          <h3 className="text-base font-semibold text-zinc-900">{exp.name}</h3>
+                          <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${getStatusColor(exp.status)}`}>
                             {exp.status.toUpperCase()}
                           </span>
                         </div>
-                        <div className="grid grid-cols-3 gap-4 mb-4">
-                          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                            <p className="text-xs text-blue-600 font-medium mb-1">
-                              {exp.status === 'running' ? '🔄 Current Turn' : '👥 Subjects'}
+                        <div className="grid grid-cols-3 gap-3 mb-3">
+                          <div className="bg-zinc-50 p-3 rounded-lg border border-zinc-100">
+                            <p className="text-xs text-zinc-600 mb-1">
+                              {exp.status === 'running' ? 'Current Turn' : 'Subjects'}
                             </p>
-                            <p className="text-lg font-bold text-blue-900">
+                            <p className="text-base font-semibold text-zinc-900">
                               {exp.status === 'running' ? exp.current_turn : exp.num_subjects}
                             </p>
                           </div>
-                          <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
-                            <p className="text-xs text-purple-600 font-medium mb-1">🧠 Model</p>
-                            <p className="text-lg font-bold text-purple-900 truncate">{exp.model_choice}</p>
+                          <div className="bg-zinc-50 p-3 rounded-lg border border-zinc-100">
+                            <p className="text-xs text-zinc-600 mb-1">Model</p>
+                            <p className="text-base font-semibold text-zinc-900 truncate">{exp.model_choice}</p>
                           </div>
-                          <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                            <p className="text-xs text-green-600 font-medium mb-1">🕒 Last Updated</p>
-                            <p className="text-sm font-bold text-green-900">{formatDate(exp.created_at).split(',')[0]}</p>
+                          <div className="bg-zinc-50 p-3 rounded-lg border border-zinc-100">
+                            <p className="text-xs text-zinc-600 mb-1">Last Updated</p>
+                            <p className="text-sm font-semibold text-zinc-900">{formatDate(exp.created_at).split(',')[0]}</p>
                           </div>
                         </div>
                         {exp.status === 'running' && (
-                          <div className="mb-3">
-                            <div className="flex justify-between text-xs text-gray-600 mb-1 font-medium">
+                          <div className="mb-2">
+                            <div className="flex justify-between text-xs text-zinc-600 mb-1.5 font-medium">
                               <span>Progress</span>
-                              <span className="font-bold text-blue-600">{exp.progress}%</span>
+                              <span className="font-semibold text-zinc-900">{exp.progress}%</span>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-3">
-                              <div className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500"
+                            <div className="w-full bg-zinc-100 rounded-full h-2">
+                              <div className="bg-zinc-900 h-2 rounded-full transition-all duration-500"
                                 style={{ width: `${exp.progress}%` }} />
                             </div>
                           </div>
                         )}
                       </div>
                       <div className="ml-4">
-                        {expandedIds.has(exp.id) ? <ChevronUp className="h-6 w-6 text-gray-400" /> : <ChevronDown className="h-6 w-6 text-gray-400" />}
+                        {expandedIds.has(exp.id) ? <ChevronUp className="h-5 w-5 text-zinc-400" /> : <ChevronDown className="h-5 w-5 text-zinc-400" />}
                       </div>
                     </div>
                   </div>
                   {expandedIds.has(exp.id) && (
-                    <div className="border-t border-gray-200 bg-gray-50 p-6">
+                    <div className="border-t border-zinc-200 bg-zinc-50 p-5">
                       {exp.error_message && (
-                        <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
-                          <p className="text-sm font-semibold text-red-800">❌ Simulation Error</p>
+                        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-sm font-medium text-red-900">Error</p>
                           <p className="text-sm text-red-700 mt-1">{exp.error_message}</p>
                         </div>
                       )}
                       <div className="mb-4">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-3">📅 Timeline</h4>
+                        <h4 className="text-sm font-medium text-zinc-900 mb-2">Timeline</h4>
                         <div className="space-y-2 text-sm">
-                          <div className="flex items-center gap-2 text-gray-600">
-                            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                          <div className="flex items-center gap-2 text-zinc-600">
+                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-400"></div>
                             <span className="font-medium">Created:</span>
                             <span>{formatDate(exp.created_at)}</span>
                           </div>
                           {exp.started_at && (
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                            <div className="flex items-center gap-2 text-zinc-600">
+                              <div className="w-1.5 h-1.5 rounded-full bg-zinc-400"></div>
                               <span className="font-medium">Started:</span>
                               <span>{formatDate(exp.started_at)}</span>
                             </div>
                           )}
                           {exp.completed_at && (
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                            <div className="flex items-center gap-2 text-zinc-600">
+                              <div className="w-1.5 h-1.5 rounded-full bg-zinc-400"></div>
                               <span className="font-medium">Completed:</span>
                               <span>{formatDate(exp.completed_at)}</span>
                             </div>
                           )}
                         </div>
                       </div>
-                      <div className="flex gap-3 flex-wrap">
+                      <div className="flex gap-2 flex-wrap">
                         {exp.status === 'running' && (
                           <button onClick={() => handleCancel(exp.id)}
-                            className="inline-flex items-center px-4 py-2 bg-red-100 border border-red-300 text-red-700 rounded-lg hover:bg-red-200 font-medium">
-                            <StopCircle className="h-4 w-4 mr-2" />
-                            🛑 Stop
+                            className="inline-flex items-center px-3 py-1.5 bg-white border border-zinc-300 text-zinc-700 rounded-lg hover:bg-zinc-50 text-sm font-medium">
+                            <StopCircle className="h-4 w-4 mr-1.5" />
+                            Stop
                           </button>
                         )}
                         {(exp.status === 'cancelled' || exp.status === 'failed') && (
-                          <button onClick={() => { alert('▶️ Resume command sent'); loadExperiments(); }}
-                            className="inline-flex items-center px-4 py-2 bg-green-100 border border-green-300 text-green-700 rounded-lg hover:bg-green-200 font-medium">
-                            <PlayCircle className="h-4 w-4 mr-2" />
-                            ▶️ Resume
+                          <button onClick={() => { alert('Resume command sent'); loadExperiments(); }}
+                            className="inline-flex items-center px-3 py-1.5 bg-white border border-zinc-300 text-zinc-700 rounded-lg hover:bg-zinc-50 text-sm font-medium">
+                            <PlayCircle className="h-4 w-4 mr-1.5" />
+                            Resume
                           </button>
                         )}
                         {exp.results_available && (
                           <button onClick={() => handleDownload(exp.id)}
-                            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium shadow-md">
-                            <Download className="h-4 w-4 mr-2" />
+                            className="inline-flex items-center px-3 py-1.5 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 text-sm font-medium">
+                            <Download className="h-4 w-4 mr-1.5" />
                             Download Results
                           </button>
                         )}
                         <button onClick={() => router.push(`/experiments/${exp.id}`)}
-                          className="inline-flex items-center px-4 py-2 bg-gray-100 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-200 font-medium">
+                          className="inline-flex items-center px-3 py-1.5 bg-white border border-zinc-300 text-zinc-700 rounded-lg hover:bg-zinc-50 text-sm font-medium">
                           View Details →
                         </button>
                         <button onClick={() => handleDelete(exp.id)}
-                          className="inline-flex items-center px-4 py-2 bg-gray-100 border border-gray-300 text-gray-700 rounded-lg hover:bg-red-50 hover:text-red-700 font-medium ml-auto">
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          🗑️ Delete
+                          className="inline-flex items-center px-3 py-1.5 bg-white border border-zinc-300 text-zinc-700 rounded-lg hover:bg-red-50 hover:text-red-700 hover:border-red-300 text-sm font-medium ml-auto">
+                          <Trash2 className="h-4 w-4 mr-1.5" />
+                          Delete
                         </button>
                       </div>
                     </div>

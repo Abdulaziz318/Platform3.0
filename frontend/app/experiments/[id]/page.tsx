@@ -42,10 +42,10 @@ export default function ExperimentDetailPage() {
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="flex items-center justify-center h-screen">
+        <div className="flex items-center justify-center h-screen bg-white">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading experiment...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-zinc-900 mx-auto"></div>
+            <p className="mt-4 text-sm text-zinc-600">Loading experiment...</p>
           </div>
         </div>
       </ProtectedRoute>
@@ -56,11 +56,11 @@ export default function ExperimentDetailPage() {
     return (
       <ProtectedRoute>
         <div className="max-w-4xl mx-auto p-8">
-          <div className="text-center bg-white rounded-lg p-12">
-            <h1 className="text-2xl font-bold mb-4">Experiment Not Found</h1>
+          <div className="text-center bg-white rounded-xl border border-zinc-200 p-12">
+            <h1 className="text-xl font-bold mb-4 text-zinc-900">Experiment Not Found</h1>
             <button
               onClick={() => router.push('/experiments')}
-              className="text-blue-600 hover:underline"
+              className="text-zinc-600 hover:text-zinc-900 text-sm"
             >
               ← Back to Experiments
             </button>
@@ -72,55 +72,55 @@ export default function ExperimentDetailPage() {
 
   return (
     <ProtectedRoute>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-white min-h-screen">
         <button
           onClick={() => router.push('/experiments')}
-          className="flex items-center text-blue-600 hover:text-blue-500 mb-6"
+          className="flex items-center text-zinc-600 hover:text-zinc-900 mb-6 text-sm font-medium"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Experiments
         </button>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold mb-6">{experiment.name}</h1>
+        <div className="bg-white rounded-xl border border-zinc-200 p-6">
+          <h1 className="text-2xl font-bold mb-6 text-zinc-900">{experiment.name}</h1>
 
           {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Status</p>
-              <p className="text-2xl font-semibold capitalize">{experiment.status}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200">
+              <p className="text-sm text-zinc-600 mb-1">Status</p>
+              <p className="text-lg font-semibold capitalize text-zinc-900">{experiment.status}</p>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Subjects</p>
-              <p className="text-2xl font-semibold">{experiment.num_subjects}</p>
+            <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200">
+              <p className="text-sm text-zinc-600 mb-1">Subjects</p>
+              <p className="text-lg font-semibold text-zinc-900">{experiment.num_subjects}</p>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Model</p>
-              <p className="text-2xl font-semibold">{experiment.model_choice}</p>
+            <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200">
+              <p className="text-sm text-zinc-600 mb-1">Model</p>
+              <p className="text-lg font-semibold text-zinc-900">{experiment.model_choice}</p>
             </div>
           </div>
 
           {/* Progress Section */}
           {experiment.status === 'running' && (
-            <div className="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-3"></div>
-                Running Simulation
+            <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-5">
+              <h2 className="text-lg font-semibold mb-4 flex items-center text-zinc-900">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-zinc-900 mr-3"></div>
+                Running Experiment
               </h2>
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between text-sm mb-2">
-                    <span className="font-medium">Overall Progress</span>
-                    <span className="font-semibold">{experiment.progress}%</span>
+                    <span className="font-medium text-zinc-700">Overall Progress</span>
+                    <span className="font-semibold text-zinc-900">{experiment.progress}%</span>
                   </div>
-                  <div className="w-full bg-blue-200 rounded-full h-3">
+                  <div className="w-full bg-blue-100 rounded-full h-2">
                     <div
-                      className="bg-blue-600 h-3 rounded-full transition-all duration-500"
+                      className="bg-zinc-900 h-2 rounded-full transition-all duration-500"
                       style={{ width: `${experiment.progress}%` }}
                     />
                   </div>
                 </div>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-zinc-700">
                   Turn {experiment.current_turn} • Processing subjects...
                 </p>
               </div>
@@ -129,24 +129,24 @@ export default function ExperimentDetailPage() {
 
           {/* Error Section */}
           {experiment.error_message && (
-            <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <h3 className="font-semibold text-red-800 mb-2 flex items-center">
-                <XCircle className="h-5 w-5 mr-2" />
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <h3 className="font-semibold text-red-900 mb-2 flex items-center text-sm">
+                <XCircle className="h-4 w-4 mr-2" />
                 Error
               </h3>
-              <p className="text-red-700">{experiment.error_message}</p>
+              <p className="text-red-700 text-sm">{experiment.error_message}</p>
             </div>
           )}
 
           {/* Timeline */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Timeline</h2>
-            <div className="space-y-4">
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold mb-4 text-zinc-900">Timeline</h2>
+            <div className="space-y-3">
               <div className="flex items-start">
-                <div className="flex-shrink-0 w-3 h-3 rounded-full bg-blue-600 mt-1.5 mr-4"></div>
+                <div className="flex-shrink-0 w-2 h-2 rounded-full bg-zinc-400 mt-1.5 mr-3"></div>
                 <div>
-                  <p className="font-medium">Created</p>
-                  <p className="text-sm text-gray-600">
+                  <p className="font-medium text-sm text-zinc-900">Created</p>
+                  <p className="text-sm text-zinc-600">
                     {new Date(experiment.created_at).toLocaleString()}
                   </p>
                 </div>
@@ -154,10 +154,10 @@ export default function ExperimentDetailPage() {
               
               {experiment.started_at && (
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-3 h-3 rounded-full bg-blue-600 mt-1.5 mr-4"></div>
+                  <div className="flex-shrink-0 w-2 h-2 rounded-full bg-zinc-400 mt-1.5 mr-3"></div>
                   <div>
-                    <p className="font-medium">Started</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="font-medium text-sm text-zinc-900">Started</p>
+                    <p className="text-sm text-zinc-600">
                       {new Date(experiment.started_at).toLocaleString()}
                     </p>
                   </div>
@@ -166,10 +166,10 @@ export default function ExperimentDetailPage() {
               
               {experiment.completed_at && (
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-3 h-3 rounded-full bg-green-600 mt-1.5 mr-4"></div>
+                  <div className="flex-shrink-0 w-2 h-2 rounded-full bg-green-600 mt-1.5 mr-3"></div>
                   <div>
-                    <p className="font-medium">Completed</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="font-medium text-sm text-zinc-900">Completed</p>
+                    <p className="text-sm text-zinc-600">
                       {new Date(experiment.completed_at).toLocaleString()}
                     </p>
                   </div>
@@ -179,7 +179,7 @@ export default function ExperimentDetailPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             {experiment.status === 'running' && (
               <button
                 onClick={async () => {
@@ -188,7 +188,7 @@ export default function ExperimentDetailPage() {
                     loadExperiment();
                   }
                 }}
-                className="flex items-center px-6 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50"
+                className="flex items-center px-4 py-2 border border-zinc-300 text-zinc-700 rounded-lg hover:bg-zinc-50 text-sm font-medium"
               >
                 <XCircle className="h-4 w-4 mr-2" />
                 Cancel Experiment
@@ -198,7 +198,7 @@ export default function ExperimentDetailPage() {
             {experiment.results_available && (
               <button
                 onClick={() => api.downloadResults(experiment.id)}
-                className="flex items-center px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                className="flex items-center px-4 py-2 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 text-sm font-medium"
               >
                 <Download className="h-4 w-4 mr-2" />
                 Download Results

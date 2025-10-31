@@ -51,34 +51,32 @@ export default function SetupPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-white py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">🔬 Simulation Setup</h1>
-            <p className="text-gray-600">
-              Configure your LLM simulation experiment parameters
+            <h1 className="text-3xl font-bold text-zinc-900 mb-2">Experiment Setup</h1>
+            <p className="text-sm text-zinc-600">
+              Configure your LLM experiment parameters
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* LLM Model Selection Card */}
-            <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Brain className="h-5 w-5 text-blue-600" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-900">LLM Model Configuration</h2>
+            <div className="bg-white rounded-xl border border-zinc-200 p-6">
+              <div className="flex items-center gap-3 mb-5">
+                <Brain className="h-5 w-5 text-zinc-900" />
+                <h2 className="text-lg font-semibold text-zinc-900">LLM Model Configuration</h2>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-zinc-700 mb-2">
                     Select LLM Model
                   </label>
                   <select
                     value={config.model_choice}
                     onChange={(e) => setConfig({ ...config, model_choice: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                    className="w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 bg-white"
                   >
                     <option value="gpt-4o">ChatGPT - GPT-4o</option>
                     <option value="o1">ChatGPT - o1</option>
@@ -92,14 +90,14 @@ export default function SetupPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-zinc-700 mb-2">
                     Experiment Name
                   </label>
                   <input
                     type="text"
                     value={config.name}
                     onChange={(e) => setConfig({ ...config, name: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900"
                     placeholder="e.g., Experiment_1"
                     required
                   />
@@ -107,14 +105,14 @@ export default function SetupPage() {
               </div>
 
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  🔒 API Key
+                <label className="block text-sm font-medium text-zinc-700 mb-2">
+                  API Key
                 </label>
                 <input
                   type="password"
                   value={config.api_key}
                   onChange={(e) => setConfig({ ...config, api_key: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900"
                   placeholder="sk-..."
                   required
                 />
@@ -122,17 +120,17 @@ export default function SetupPage() {
 
               {/* API Mode Selection */}
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-zinc-700 mb-3">
                   API Mode
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => setBatching(true)}
-                    className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
+                    className={`px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors ${
                       batching
-                        ? 'bg-blue-50 border-blue-500 text-blue-700'
-                        : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
+                        ? 'bg-zinc-100 border-zinc-300 text-zinc-900'
+                        : 'bg-white border-zinc-200 text-zinc-600 hover:border-zinc-300'
                     }`}
                   >
                     <Zap className="h-4 w-4 inline mr-2" />
@@ -141,10 +139,10 @@ export default function SetupPage() {
                   <button
                     type="button"
                     onClick={() => setBatching(false)}
-                    className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${
+                    className={`px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors ${
                       !batching
-                        ? 'bg-blue-50 border-blue-500 text-blue-700'
-                        : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
+                        ? 'bg-zinc-100 border-zinc-300 text-zinc-900'
+                        : 'bg-white border-zinc-200 text-zinc-600 hover:border-zinc-300'
                     }`}
                   >
                     Individual Requests
@@ -154,23 +152,21 @@ export default function SetupPage() {
             </div>
 
             {/* Conversation Parameters Card */}
-            <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Settings className="h-5 w-5 text-purple-600" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-900">Conversation Parameters</h2>
+            <div className="bg-white rounded-xl border border-zinc-200 p-6">
+              <div className="flex items-center gap-3 mb-5">
+                <Settings className="h-5 w-5 text-zinc-900" />
+                <h2 className="text-lg font-semibold text-zinc-900">Conversation Parameters</h2>
               </div>
 
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-zinc-700 mb-2">
                     Initial Responses
                   </label>
                   <select
                     value={config.initial_responses}
                     onChange={(e) => setConfig({ ...config, initial_responses: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900"
                   >
                     {[1, 2, 3, 4, 5, 6, 7].map(num => (
                       <option key={num} value={num}>{num}</option>
@@ -179,7 +175,7 @@ export default function SetupPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-zinc-700 mb-2">
                     Total Turns
                   </label>
                   <input
@@ -188,12 +184,12 @@ export default function SetupPage() {
                     max="20"
                     value={config.total_turns}
                     onChange={(e) => setConfig({ ...config, total_turns: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-zinc-700 mb-2">
                     Number of Subjects
                   </label>
                   <input
@@ -204,7 +200,7 @@ export default function SetupPage() {
                       ...config, 
                       num_subjects: e.target.value ? parseInt(e.target.value) : undefined 
                     })}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900"
                     placeholder="All subjects"
                   />
                 </div>
@@ -212,18 +208,16 @@ export default function SetupPage() {
             </div>
 
             {/* Tone Parameters Card */}
-            <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-4">
+            <div className="bg-white rounded-xl border border-zinc-200 p-6">
+              <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <Sliders className="h-5 w-5 text-green-600" />
-                  </div>
-                  <h2 className="text-xl font-semibold text-gray-900">Tone Parameters</h2>
+                  <Sliders className="h-5 w-5 text-zinc-900" />
+                  <h2 className="text-lg font-semibold text-zinc-900">Tone Parameters</h2>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-sm text-zinc-600 hover:text-zinc-900 font-medium"
                 >
                   {showAdvanced ? 'Hide Advanced' : 'Show Advanced'}
                 </button>
@@ -233,10 +227,10 @@ export default function SetupPage() {
                 {/* Temperature */}
                 <div>
                   <div className="flex justify-between mb-2">
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-zinc-700">
                       Temperature
                     </label>
-                    <span className="text-sm font-semibold text-blue-600">
+                    <span className="text-sm font-semibold text-zinc-900">
                       {config.temperature.toFixed(2)}
                     </span>
                   </div>
@@ -247,9 +241,9 @@ export default function SetupPage() {
                     step="0.01"
                     value={config.temperature}
                     onChange={(e) => setConfig({ ...config, temperature: parseFloat(e.target.value) })}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                    className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-zinc-900"
                   />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <div className="flex justify-between text-xs text-zinc-500 mt-1">
                     <span>Deterministic (0.0)</span>
                     <span>Random (2.0)</span>
                   </div>
@@ -260,10 +254,10 @@ export default function SetupPage() {
                     {/* Top-p */}
                     <div>
                       <div className="flex justify-between mb-2">
-                        <label className="text-sm font-medium text-gray-700">
+                        <label className="text-sm font-medium text-zinc-700">
                           Top-p
                         </label>
-                        <span className="text-sm font-semibold text-blue-600">
+                        <span className="text-sm font-semibold text-zinc-900">
                           {config.top_p.toFixed(2)}
                         </span>
                       </div>
@@ -274,18 +268,18 @@ export default function SetupPage() {
                         step="0.01"
                         value={config.top_p}
                         onChange={(e) => setConfig({ ...config, top_p: parseFloat(e.target.value) })}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                        className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-zinc-900"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Higher values = more diverse output</p>
+                      <p className="text-xs text-zinc-500 mt-1">Higher values = more diverse output</p>
                     </div>
 
                     {/* Presence Penalty */}
                     <div>
                       <div className="flex justify-between mb-2">
-                        <label className="text-sm font-medium text-gray-700">
+                        <label className="text-sm font-medium text-zinc-700">
                           Presence Penalty
                         </label>
-                        <span className="text-sm font-semibold text-blue-600">
+                        <span className="text-sm font-semibold text-zinc-900">
                           {config.presence_penalty.toFixed(2)}
                         </span>
                       </div>
@@ -296,18 +290,18 @@ export default function SetupPage() {
                         step="0.01"
                         value={config.presence_penalty}
                         onChange={(e) => setConfig({ ...config, presence_penalty: parseFloat(e.target.value) })}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                        className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-zinc-900"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Higher values = more variety in topics</p>
+                      <p className="text-xs text-zinc-500 mt-1">Higher values = more variety in topics</p>
                     </div>
 
                     {/* Frequency Penalty */}
                     <div>
                       <div className="flex justify-between mb-2">
-                        <label className="text-sm font-medium text-gray-700">
+                        <label className="text-sm font-medium text-zinc-700">
                           Frequency Penalty
                         </label>
-                        <span className="text-sm font-semibold text-blue-600">
+                        <span className="text-sm font-semibold text-zinc-900">
                           {config.frequency_penalty.toFixed(2)}
                         </span>
                       </div>
@@ -318,9 +312,9 @@ export default function SetupPage() {
                         step="0.01"
                         value={config.frequency_penalty}
                         onChange={(e) => setConfig({ ...config, frequency_penalty: parseFloat(e.target.value) })}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                        className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-zinc-900"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Higher values = less repetition</p>
+                      <p className="text-xs text-zinc-500 mt-1">Higher values = less repetition</p>
                     </div>
                   </>
                 )}
@@ -328,21 +322,19 @@ export default function SetupPage() {
             </div>
 
             {/* CSV Upload Card */}
-            <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <Upload className="h-5 w-5 text-orange-600" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-900">Upload Participant Data</h2>
+            <div className="bg-white rounded-xl border border-zinc-200 p-6">
+              <div className="flex items-center gap-3 mb-5">
+                <Upload className="h-5 w-5 text-zinc-900" />
+                <h2 className="text-lg font-semibold text-zinc-900">Upload Participant Data</h2>
               </div>
 
-              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors bg-gray-50">
+              <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-zinc-200 border-dashed rounded-lg hover:border-zinc-300 transition-colors bg-zinc-50">
                 <div className="space-y-1 text-center">
-                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                  <div className="flex text-sm text-gray-600">
+                  <Upload className="mx-auto h-10 w-10 text-zinc-400" />
+                  <div className="flex text-sm text-zinc-600">
                     <label
                       htmlFor="file-upload"
-                      className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
+                      className="relative cursor-pointer rounded-md font-medium text-zinc-900 hover:text-zinc-700 focus-within:outline-none"
                     >
                       <span>Upload a CSV file</span>
                       <input
@@ -357,13 +349,13 @@ export default function SetupPage() {
                     </label>
                     <p className="pl-1">or drag and drop</p>
                   </div>
-                  <p className="text-xs text-gray-500">CSV file with subject profiles</p>
+                  <p className="text-xs text-zinc-500">CSV file with subject profiles</p>
                 </div>
               </div>
               {csvFile && (
                 <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-sm text-green-700 flex items-center">
-                    <span className="mr-2">✅</span>
+                    <span className="mr-2">✓</span>
                     <strong>{csvFile.name}</strong> ({(csvFile.size / 1024).toFixed(1)} KB)
                   </p>
                 </div>
@@ -371,10 +363,10 @@ export default function SetupPage() {
             </div>
 
             {/* Configuration Preview */}
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl shadow-md p-6 border border-blue-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">📋 Configuration Preview</h3>
-              <div className="bg-white rounded-lg p-4 font-mono text-xs overflow-x-auto">
-                <pre className="text-gray-800">
+            <div className="bg-zinc-50 rounded-xl border border-zinc-200 p-6">
+              <h3 className="text-base font-semibold text-zinc-900 mb-3">Configuration Preview</h3>
+              <div className="bg-white rounded-lg p-4 font-mono text-xs overflow-x-auto border border-zinc-200">
+                <pre className="text-zinc-800">
                   {JSON.stringify({
                     experiment_name: config.name || 'Not set',
                     model: config.model_choice,
@@ -393,25 +385,25 @@ export default function SetupPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="p-4 bg-red-50 border border-red-300 rounded-lg text-red-700 flex items-center gap-2">
-                <span className="text-xl">❌</span>
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-center gap-2 text-sm">
+                <span>⚠</span>
                 <span>{error}</span>
               </div>
             )}
 
             {/* Submit Buttons */}
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 transition-all shadow-lg hover:shadow-xl text-lg"
+                className="flex-1 bg-zinc-900 text-white py-3 rounded-lg font-medium hover:bg-zinc-800 disabled:bg-zinc-400 transition-colors text-sm"
               >
-                {loading ? '⏳ Creating Experiment...' : '🚀 Create Simulation'}
+                {loading ? '⏳ Creating Experiment...' : 'Create Experiment'}
               </button>
               <button
                 type="button"
                 onClick={() => router.push('/experiments')}
-                className="px-8 py-4 border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-semibold text-gray-700"
+                className="px-6 py-3 border border-zinc-200 rounded-lg hover:bg-zinc-50 transition-colors font-medium text-zinc-700 text-sm"
               >
                 Cancel
               </button>

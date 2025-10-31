@@ -34,10 +34,10 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Checking authentication...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-zinc-900 mx-auto"></div>
+          <p className="mt-4 text-sm text-zinc-600">Checking authentication...</p>
         </div>
       </div>
     );
