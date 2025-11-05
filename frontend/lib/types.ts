@@ -27,3 +27,18 @@ export interface Experiment {
   error_message?: string;
   results_available: boolean;
 }
+
+export interface Dataset {
+  id: number;
+  name: string;
+  row_count: number;
+  column_names: string[];
+  selected_variables: string[];
+  data: Record<string, any>[];
+  created_at: string;
+}
+
+export interface DatasetConfig {
+  name: string;
+  selected_variables: string[];
+}

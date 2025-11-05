@@ -1,12 +1,12 @@
-import { User, Experiment, ExperimentConfig } from './types';
+import { User, Experiment, ExperimentConfig, Dataset, DatasetConfig } from './types';
 
 // Re-export types for convenience
-export type { User, Experiment, ExperimentConfig } from './types';
+export type { User, Experiment, ExperimentConfig, Dataset, DatasetConfig } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // Mock mode - set to false when backend is ready
-const MOCK_MODE = true;
+const MOCK_MODE = false;
 
 // Mock data store
 let mockExperiments: Experiment[] = [
@@ -38,6 +38,43 @@ let mockExperiments: Experiment[] = [
 ];
 
 let nextMockId = 3;
+
+// Mock datasets store
+let mockDatasets: Dataset[] = [
+  {
+    id: 1,
+    name: "Conspiracy Beliefs Study",
+    row_count: 6,
+    column_names: ['subject', 'conspiracy', 'initial_survey', 'human_post_survey', 'ai_post_survey', 'human_1', 'bot_1', 'human_2', 'bot_2'],
+    selected_variables: ['subject', 'conspiracy', 'initial_survey'],
+    data: [
+      { subject: '0', conspiracy: 'The assertion...', initial_survey: 62, human_post_survey: 34, ai_post_survey: 55, human_1: 'The theory t...', bot_1: 'Thank you f...', human_2: 'Thank you f...', bot_2: "I'm glad..." },
+      { subject: '1', conspiracy: 'The JFK assassi...', initial_survey: 71, human_post_survey: 30, ai_post_survey: 70, human_1: 'JFK assassi...', bot_1: "It's absolute...", human_2: 'I appreciate...', bot_2: 'I under...' },
+      { subject: '2', conspiracy: 'The assassi...', initial_survey: 95, human_post_survey: 100, ai_post_survey: 90, human_1: 'I have a lot ...', bot_1: 'I completel...', human_2: 'Thank you f...', bot_2: 'I appre...' },
+      { subject: '3', conspiracy: 'The 2020 el...', initial_survey: 59, human_post_survey: 20, ai_post_survey: 42, human_1: 'The 2020 el...', bot_1: "It's great th...", human_2: 'Thank you f...', bot_2: 'I under...' },
+      { subject: '4', conspiracy: 'The govern...', initial_survey: 52, human_post_survey: 64, ai_post_survey: 'After reflecting', human_1: 'I find the co...', bot_1: "It's underst...", human_2: 'Thank you f...', bot_2: 'Thank-...' },
+      { subject: '5', conspiracy: 'Ronald Rea...', initial_survey: 90, human_post_survey: 90, ai_post_survey: 'After reflect...', human_1: 'Ronald Rea...', bot_1: 'Thank you f...', human_2: 'Thank you f...', bot_2: 'I under...' },
+    ],
+    created_at: new Date(Date.now() - 172800000).toISOString(),
+  },
+  {
+    id: 2,
+    name: "Customer Feedback Q4 2024",
+    row_count: 450,
+    column_names: ['customer_id', 'product', 'rating', 'comment', 'purchase_date'],
+    selected_variables: ['customer_id', 'product', 'rating'],
+    data: [
+      { customer_id: 'C001', product: 'Widget A', rating: 4.5, comment: 'Great product!', purchase_date: '2024-10-15' },
+      { customer_id: 'C002', product: 'Widget B', rating: 3.8, comment: 'Good but could be better', purchase_date: '2024-10-16' },
+      { customer_id: 'C003', product: 'Widget A', rating: 5.0, comment: 'Excellent!', purchase_date: '2024-10-17' },
+      { customer_id: 'C004', product: 'Widget C', rating: 2.5, comment: 'Not satisfied', purchase_date: '2024-10-18' },
+      { customer_id: 'C005', product: 'Widget B', rating: 4.2, comment: 'Pretty good', purchase_date: '2024-10-19' },
+    ],
+    created_at: new Date(Date.now() - 604800000).toISOString(),
+  },
+];
+
+let nextMockDatasetId = 3;
 
 class APIClient {
   private token: string | null = null;
@@ -297,6 +334,98 @@ class APIClient {
     a.download = `experiment_${id}_results.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
+  }
+
+  // Dataset methods
+  async createDataset(name: string, csvFile: File): Promise<{ dataset_id: number }> {
+    if (MOCK_MODE) {
+      // Parse CSV file in mock mode
+      const text = await csvFile.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      const headers = lines[0].split(',').map(h => h.trim());
+      const data = lines.slice(1, 11).map(line => {
+        const values = line.split(',');
+        const row: Record<string, any> = {};
+        headers.forEach((header, i) => {
+          row[header] = values[i]?.trim() || '';
+        });
+        return row;
+      });
+
+      const newDataset: Dataset = {
+        id: nextMockDatasetId++,
+        name,
+        row_count: lines.length - 1,
+        column_names: headers,
+        selected_variables: [],
+        data,
+        created_at: new Date().toISOString(),
+      };
+      
+      mockDatasets.unshift(newDataset);
+      return { dataset_id: newDataset.id };
+    }
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('csv_file', csvFile);
+
+    const response = await fetch(`${API_URL}/api/datasets`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) throw new Error('Failed to create dataset');
+    return response.json();
+  }
+
+  async listDatasets(): Promise<Dataset[]> {
+    if (MOCK_MODE) {
+      return [...mockDatasets];
+    }
+    return this.request('/api/datasets');
+  }
+
+  async getDataset(id: number): Promise<Dataset> {
+    if (MOCK_MODE) {
+      const dataset = mockDatasets.find(d => d.id === id);
+      if (!dataset) throw new Error('Dataset not found');
+      return { ...dataset };
+    }
+    return this.request(`/api/datasets/${id}`);
+  }
+
+  async updateDataset(id: number, config: DatasetConfig): Promise<void> {
+    if (MOCK_MODE) {
+      const dataset = mockDatasets.find(d => d.id === id);
+      if (dataset) {
+        dataset.selected_variables = config.selected_variables;
+        dataset.name = config.name;
+      }
+      return;
+    }
+
+    await this.request(`/api/datasets/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(config),
+    });
+  }
+
+  async deleteDataset(id: number): Promise<void> {
+    if (MOCK_MODE) {
+      const index = mockDatasets.findIndex(d => d.id === id);
+      if (index !== -1) {
+        mockDatasets.splice(index, 1);
+      }
+      return;
+    }
+
+    await this.request(`/api/datasets/${id}`, {
+      method: 'DELETE',
+    });
   }
 }
 

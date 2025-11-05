@@ -52,6 +52,16 @@ export default function Navbar() {
                   My Experiments
                 </button>
                 <button
+                  onClick={() => router.push('/datasets')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    pathname?.startsWith('/datasets')
+                      ? 'bg-zinc-100 text-zinc-900'
+                      : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'
+                  }`}
+                >
+                  Datasets
+                </button>
+                <button
                   onClick={() => router.push('/setup')}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     pathname === '/setup'
