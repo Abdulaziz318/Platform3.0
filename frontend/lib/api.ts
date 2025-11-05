@@ -6,7 +6,7 @@ export type { User, Experiment, ExperimentConfig } from './types';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // Mock mode - set to false when backend is ready
-const MOCK_MODE = false;
+const MOCK_MODE = true;
 
 // Mock data store
 let mockExperiments: Experiment[] = [
