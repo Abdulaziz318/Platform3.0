@@ -10,23 +10,17 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuth = () => {
+      // Quick synchronous check first
       if (!api.isAuthenticated()) {
         router.push('/auth/login');
+        setIsLoading(false);
         return;
       }
 
-      try {
-        // Verify token is valid by making a request
-        await api.getCurrentUser();
-        setIsAuthenticated(true);
-      } catch (err) {
-        // Token is invalid
-        api.clearToken();
-        router.push('/auth/login');
-      } finally {
-        setIsLoading(false);
-      }
+      // Token exists, trust it and show content immediately
+      setIsAuthenticated(true);
+      setIsLoading(false);
     };
 
     checkAuth();
