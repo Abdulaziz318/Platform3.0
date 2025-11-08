@@ -15,7 +15,7 @@ export default function HomePage() {
 
   const handleGetStarted = () => {
     if (isAuthenticated) {
-      router.push('/experiments');
+      router.push('/dashboard/simulations');
     } else {
       router.push('/auth/register');
     }

@@ -31,7 +31,7 @@ export default function RegisterPage() {
 
     try {
       await api.register(email, password);
-      router.push('/experiments');
+      router.push('/dashboard/simulations');
     } catch (err: any) {
       setError(err.message || 'Failed to register. Please try again.');
     } finally {

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { api, Experiment } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import { ArrowLeft, Download, XCircle } from 'lucide-react';
+import { ArrowLeft, Download, XCircle, Users, MessageSquare } from 'lucide-react';
 
 export default function ExperimentDetailPage() {
   const params = useParams();
@@ -82,7 +82,22 @@ export default function ExperimentDetailPage() {
         </button>
 
         <div className="bg-white rounded-xl border border-zinc-200 p-6">
-          <h1 className="text-2xl font-bold mb-6 text-zinc-900">{experiment.name}</h1>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-zinc-900">{experiment.name}</h1>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-100 text-zinc-700 rounded-lg text-sm font-medium">
+              {experiment.experiment_type === 'llm-llm' ? (
+                <>
+                  <MessageSquare size={16} />
+                  LLM-LLM
+                </>
+              ) : (
+                <>
+                  <Users size={16} />
+                  Human-LLM
+                </>
+              )}
+            </div>
+          </div>
 
           {/* Key Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -91,7 +106,9 @@ export default function ExperimentDetailPage() {
               <p className="text-lg font-semibold capitalize text-zinc-900">{experiment.status}</p>
             </div>
             <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200">
-              <p className="text-sm text-zinc-600 mb-1">Subjects</p>
+              <p className="text-sm text-zinc-600 mb-1">
+                {experiment.experiment_type === 'llm-llm' ? 'Conversations' : 'Subjects'}
+              </p>
               <p className="text-lg font-semibold text-zinc-900">{experiment.num_subjects}</p>
             </div>
             <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200">
@@ -99,6 +116,41 @@ export default function ExperimentDetailPage() {
               <p className="text-lg font-semibold text-zinc-900">{experiment.model_choice}</p>
             </div>
           </div>
+
+          {/* LLM-LLM Specific Details */}
+          {experiment.experiment_type === 'llm-llm' && experiment.llm_config && (
+            <div className="mb-6 bg-purple-50 border border-purple-200 rounded-lg p-5">
+              <h2 className="text-lg font-semibold mb-4 text-zinc-900">Conversation Setup</h2>
+              <div className="space-y-4">
+                {experiment.llm_config.personas && experiment.llm_config.personas.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-zinc-700 mb-2">Personas</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {experiment.llm_config.personas.map((persona: any, idx: number) => (
+                        <div key={idx} className="bg-white p-3 rounded border border-purple-100">
+                          <p className="font-medium text-sm text-zinc-900 mb-1">{persona.name}</p>
+                          <p className="text-xs text-zinc-600 line-clamp-2">{persona.system_message || persona.systemMessage}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {experiment.llm_config.conversation_setup && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-zinc-700 mb-2">Initial Message</h3>
+                    <div className="bg-white p-3 rounded border border-purple-100">
+                      <p className="text-sm text-zinc-700">{experiment.llm_config.conversation_setup.initial_message}</p>
+                      <p className="text-xs text-zinc-500 mt-1">
+                        Role: {experiment.llm_config.conversation_setup.initial_message_role} | 
+                        First to speak: Persona {experiment.llm_config.conversation_setup.first_to_speak}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Progress Section */}
           {experiment.status === 'running' && (

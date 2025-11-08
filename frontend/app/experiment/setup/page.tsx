@@ -1,20 +1,22 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import DashboardLayout from '@/components/DashboardLayout';
-import { Upload, Settings, Sliders, Brain, Zap } from 'lucide-react';
+import { Upload, Settings, Sliders, Brain, Zap, ArrowLeft } from 'lucide-react';
 
-export default function SetupPage() {
+export default function HumanLLMSetupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const experimentName = searchParams.get('name') || 'Untitled Experiment';
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [config, setConfig] = useState({
-    name: '',
+    name: experimentName,
     model_choice: 'gpt-4o',
     api_key: '',
     temperature: 0.7,
@@ -52,16 +54,22 @@ export default function SetupPage() {
 
   return (
     <ProtectedRoute>
-      <DashboardLayout>
-        <div className="min-h-screen bg-zinc-50 py-8">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-zinc-900 mb-2">Experiment Setup</h1>
-            <p className="text-sm text-zinc-600">
-              Configure your LLM experiment parameters
-            </p>
+      <div className="min-h-screen bg-zinc-50">
+        {/* Top Bar */}
+        <div className="bg-white border-b border-zinc-200 px-6 py-4">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push('/dashboard/experiments/create')}
+              className="p-2 hover:bg-zinc-100 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5 text-zinc-600" />
+            </button>
+            <h1 className="text-xl font-semibold text-zinc-900">{experimentName}</h1>
           </div>
+        </div>
 
+        {/* Content */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* LLM Model Selection Card */}
             <div className="bg-white rounded-xl border border-zinc-200 p-6">
@@ -364,27 +372,6 @@ export default function SetupPage() {
               )}
             </div>
 
-            {/* Configuration Preview */}
-            <div className="bg-zinc-50 rounded-xl border border-zinc-200 p-6">
-              <h3 className="text-base font-semibold text-zinc-900 mb-3">Configuration Preview</h3>
-              <div className="bg-white rounded-lg p-4 font-mono text-xs overflow-x-auto border border-zinc-200">
-                <pre className="text-zinc-800">
-                  {JSON.stringify({
-                    experiment_name: config.name || 'Not set',
-                    model: config.model_choice,
-                    batching: batching,
-                    initial_responses: config.initial_responses,
-                    total_turns: config.total_turns,
-                    num_subjects: config.num_subjects || 'All',
-                    temperature: config.temperature,
-                    top_p: config.top_p,
-                    presence_penalty: config.presence_penalty,
-                    frequency_penalty: config.frequency_penalty,
-                  }, null, 2)}
-                </pre>
-              </div>
-            </div>
-
             {/* Error Message */}
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 flex items-center gap-2 text-sm">
@@ -404,7 +391,7 @@ export default function SetupPage() {
               </button>
               <button
                 type="button"
-                onClick={() => router.push('/experiments')}
+                onClick={() => router.push('/dashboard/experiments/create')}
                 className="px-6 py-3 border border-zinc-200 rounded-lg hover:bg-zinc-50 transition-colors font-medium text-zinc-700 text-sm"
               >
                 Cancel
@@ -412,8 +399,7 @@ export default function SetupPage() {
             </div>
           </form>
         </div>
-        </div>
-      </DashboardLayout>
+      </div>
     </ProtectedRoute>
   );
 }

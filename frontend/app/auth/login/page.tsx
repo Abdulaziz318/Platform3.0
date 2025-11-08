@@ -19,7 +19,7 @@ export default function LoginPage() {
 
     try {
       await api.login(email, password);
-      router.push('/experiments');
+      router.push('/dashboard/simulations');
     } catch (err: any) {
       setError(err.message || 'Failed to login. Please try again.');
     } finally {

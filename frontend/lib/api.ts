@@ -1,7 +1,7 @@
-import { User, Experiment, ExperimentConfig, Dataset, DatasetConfig } from './types';
+import { User, Experiment, ExperimentConfig, Dataset, DatasetConfig, LLMExperimentConfig, Persona, SavedPersona } from './types';
 
 // Re-export types for convenience
-export type { User, Experiment, ExperimentConfig, Dataset, DatasetConfig } from './types';
+export type { User, Experiment, ExperimentConfig, Dataset, DatasetConfig, LLMExperimentConfig, Persona, SavedPersona } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -18,6 +18,7 @@ let mockExperiments: Experiment[] = [
     current_turn: 3,
     num_subjects: 100,
     model_choice: 'gpt-4o',
+    experiment_type: 'human-llm',
     created_at: new Date(Date.now() - 86400000).toISOString(),
     started_at: new Date(Date.now() - 86400000).toISOString(),
     completed_at: new Date(Date.now() - 43200000).toISOString(),
@@ -31,13 +32,28 @@ let mockExperiments: Experiment[] = [
     current_turn: 1,
     num_subjects: 200,
     model_choice: 'claude-sonnet-3.5',
+    experiment_type: 'human-llm',
     created_at: new Date(Date.now() - 7200000).toISOString(),
     started_at: new Date(Date.now() - 3600000).toISOString(),
     results_available: false,
   },
+  {
+    id: 3,
+    name: "LLM Debate Simulation",
+    status: 'completed',
+    progress: 100,
+    current_turn: 5,
+    num_subjects: 50,
+    model_choice: 'gpt-4o',
+    experiment_type: 'llm-llm',
+    created_at: new Date(Date.now() - 259200000).toISOString(),
+    started_at: new Date(Date.now() - 259200000).toISOString(),
+    completed_at: new Date(Date.now() - 172800000).toISOString(),
+    results_available: true,
+  },
 ];
 
-let nextMockId = 3;
+let nextMockId = 4;
 
 // Mock datasets store
 let mockDatasets: Dataset[] = [
@@ -75,6 +91,33 @@ let mockDatasets: Dataset[] = [
 ];
 
 let nextMockDatasetId = 3;
+
+// Mock saved personas store
+let mockSavedPersonas: SavedPersona[] = [
+  {
+    id: 1,
+    name: "Friendly Customer Support",
+    system_message: "You are a friendly and helpful customer support agent. Always be polite, empathetic, and solution-oriented.",
+    created_at: new Date(Date.now() - 604800000).toISOString(),
+    updated_at: new Date(Date.now() - 604800000).toISOString(),
+  },
+  {
+    id: 2,
+    name: "Skeptical Researcher",
+    system_message: "You are a skeptical researcher who questions claims and asks for evidence. You value scientific rigor and critical thinking.",
+    created_at: new Date(Date.now() - 432000000).toISOString(),
+    updated_at: new Date(Date.now() - 432000000).toISOString(),
+  },
+  {
+    id: 3,
+    name: "Conspiracy Theorist",
+    system_message: "You are someone who believes in conspiracy theories and is skeptical of mainstream narratives. You often question official explanations.",
+    created_at: new Date(Date.now() - 259200000).toISOString(),
+    updated_at: new Date(Date.now() - 259200000).toISOString(),
+  },
+];
+
+let nextMockPersonaId = 4;
 
 class APIClient {
   private token: string | null = null;
@@ -424,6 +467,110 @@ class APIClient {
     }
 
     await this.request(`/api/datasets/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // LLM Experiment methods
+  async createLLMExperiment(config: LLMExperimentConfig): Promise<{ experiment_id: number }> {
+    if (MOCK_MODE) {
+      const newExperiment: Experiment = {
+        id: nextMockId++,
+        name: config.name,
+        status: 'running',
+        progress: 0,
+        current_turn: 0,
+        num_subjects: 100,
+        model_choice: 'gpt-4o',
+        experiment_type: 'llm-llm',
+        created_at: new Date().toISOString(),
+        started_at: new Date().toISOString(),
+        results_available: false,
+      };
+      mockExperiments.unshift(newExperiment);
+      
+      // Simulate progress
+      this.simulateExperimentProgress(newExperiment.id);
+      
+      return { experiment_id: newExperiment.id };
+    }
+
+    const response = await fetch(`${API_URL}/api/experiments/llm-llm`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(config),
+    });
+
+    if (!response.ok) throw new Error('Failed to create LLM experiment');
+    return response.json();
+  }
+
+  // Saved Personas methods
+  async listSavedPersonas(): Promise<SavedPersona[]> {
+    if (MOCK_MODE) {
+      return [...mockSavedPersonas];
+    }
+    return this.request('/api/personas');
+  }
+
+  async getSavedPersona(id: number): Promise<SavedPersona> {
+    if (MOCK_MODE) {
+      const persona = mockSavedPersonas.find(p => p.id === id);
+      if (!persona) throw new Error('Persona not found');
+      return { ...persona };
+    }
+    return this.request(`/api/personas/${id}`);
+  }
+
+  async createSavedPersona(name: string, systemMessage: string): Promise<{ persona_id: number }> {
+    if (MOCK_MODE) {
+      const newPersona: SavedPersona = {
+        id: nextMockPersonaId++,
+        name,
+        system_message: systemMessage,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      mockSavedPersonas.unshift(newPersona);
+      return { persona_id: newPersona.id };
+    }
+
+    return this.request('/api/personas', {
+      method: 'POST',
+      body: JSON.stringify({ name, system_message: systemMessage }),
+    });
+  }
+
+  async updateSavedPersona(id: number, name: string, systemMessage: string): Promise<void> {
+    if (MOCK_MODE) {
+      const persona = mockSavedPersonas.find(p => p.id === id);
+      if (persona) {
+        persona.name = name;
+        persona.system_message = systemMessage;
+        persona.updated_at = new Date().toISOString();
+      }
+      return;
+    }
+
+    await this.request(`/api/personas/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ name, system_message: systemMessage }),
+    });
+  }
+
+  async deleteSavedPersona(id: number): Promise<void> {
+    if (MOCK_MODE) {
+      const index = mockSavedPersonas.findIndex(p => p.id === id);
+      if (index !== -1) {
+        mockSavedPersonas.splice(index, 1);
+      }
+      return;
+    }
+
+    await this.request(`/api/personas/${id}`, {
       method: 'DELETE',
     });
   }

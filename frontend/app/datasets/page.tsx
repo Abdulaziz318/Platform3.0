@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, Dataset } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import DashboardLayout from '@/components/DashboardLayout';
 import { Plus, Database, Trash2, Calendar, Rows } from 'lucide-react';
 
 export default function DatasetsPage() {
@@ -50,19 +51,22 @@ export default function DatasetsPage() {
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="flex items-center justify-center h-screen bg-white">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-zinc-900 mx-auto"></div>
-            <p className="mt-4 text-sm text-zinc-600 font-medium">Loading datasets...</p>
+        <DashboardLayout>
+          <div className="flex items-center justify-center h-full min-h-[calc(100vh-3.5rem)]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-zinc-900 mx-auto"></div>
+              <p className="mt-4 text-sm text-zinc-600 font-medium">Loading datasets...</p>
+            </div>
           </div>
-        </div>
+        </DashboardLayout>
       </ProtectedRoute>
     );
   }
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-white py-8">
+      <DashboardLayout>
+        <div className="min-h-screen bg-zinc-50 py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
@@ -149,7 +153,8 @@ export default function DatasetsPage() {
             </div>
           )}
         </div>
-      </div>
+        </div>
+      </DashboardLayout>
     </ProtectedRoute>
   );
 }
