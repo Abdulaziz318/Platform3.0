@@ -16,18 +16,12 @@ export interface ExperimentConfig {
 export interface Experiment {
   id: number;
   name: string;
-  status: 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
-  progress: number;
-  current_turn: number;
-  num_subjects: number;
-  model_choice: string;
-  experiment_type?: 'human-llm' | 'llm-llm'; // New field
-  llm_config?: LLMExperimentConfig; // LLM-LLM specific configuration
+  experiment_type: 'human-llm' | 'llm-llm';
+  dataset_id: number;
+  dataset_name?: string; // For display purposes
+  config: LLMExperimentConfig | HumanLLMExperimentConfig;
   created_at: string;
-  started_at?: string;
-  completed_at?: string;
-  error_message?: string;
-  results_available: boolean;
+  updated_at: string;
 }
 
 export interface Dataset {
@@ -79,10 +73,105 @@ export interface LLMExperimentConfig {
   };
 }
 
+export interface HumanLLMExperimentConfig {
+  name: string;
+  dataset_id: number;
+  llm_persona: Persona;
+  conversation_setup: {
+    llm_persona_id: string;
+    first_to_speak: 'human' | 'llm';
+    initial_message: string;
+    initial_message_role: MessageRole;
+    blocks: ConversationBlock[];
+  };
+}
+
 export interface SavedPersona {
   id: number;
   name: string;
   system_message: string;
   created_at: string;
   updated_at: string;
+}
+
+// LLM Provider Types
+export type SDKType = 'openai' | 'anthropic' | 'mixtral';
+
+export interface LLMProvider {
+  id: number;
+  name: string;
+  sdk: SDKType;
+  api_base_url?: string; // Only for OpenAI
+  api_key: string;
+  models: string[];
+  supports_batching: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProviderVerificationRequest {
+  sdk: SDKType;
+  api_base_url?: string;
+  api_key: string;
+  model_id?: string; // For manual model verification
+}
+
+export interface ProviderVerificationResponse {
+  success: boolean;
+  error?: 'invalid_api_key' | 'invalid_base_url' | 'unknown';
+  error_code?: string;
+  models?: string[];
+  supports_batching: boolean;
+}
+
+export interface ModelVerificationResponse {
+  success: boolean;
+  error?: string;
+}
+
+// Simulation Types
+export type SimulationStatus = 'not_started' | 'running' | 'stopped' | 'finished' | 'error';
+export type EndpointType = 'batching' | 'responses';
+
+export interface LLMParameters {
+  temperature?: number;
+  top_p?: number;
+  max_tokens?: number;
+  frequency_penalty?: number;
+  presence_penalty?: number;
+}
+
+export interface Simulation {
+  id: number;
+  name: string;
+  experiment_id: number;
+  experiment_name: string;
+  experiment_type: 'human-llm' | 'llm-llm';
+  dataset_id: number;
+  dataset_name: string;
+  provider_id: number;
+  provider_name: string;
+  model: string;
+  endpoint_type: EndpointType;
+  llm_parameters: LLMParameters;
+  num_rows: number; // Number of dataset rows to simulate
+  status: SimulationStatus;
+  progress?: number; // 0-100 for running/stopped/finished/error
+  current_row?: number; // Current row being processed
+  error_message?: string;
+  started_at?: string;
+  completed_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateSimulationRequest {
+  name: string;
+  experiment_id: number;
+  dataset_id: number;
+  provider_id: number;
+  model: string;
+  endpoint_type: EndpointType;
+  llm_parameters: LLMParameters;
+  num_rows: number;
 }

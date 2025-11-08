@@ -42,7 +42,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       items: [
         { name: 'My Simulations', path: '/dashboard/simulations', icon: PlayCircle },
         { name: 'Create Simulation', path: '/dashboard/simulations/create', icon: Plus },
-        { name: 'Run Simulation', path: '/dashboard/simulations/run', icon: Zap },
       ]
     },
     {
@@ -58,7 +57,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       title: 'Manage',
       items: [
         { name: 'Usage', path: '/dashboard/usage', icon: BarChart3 },
-        { name: 'API Keys', path: '/dashboard/api-keys', icon: Key },
+        { name: 'LLM Providers', path: '/dashboard/llm-providers', icon: Key },
       ]
     }
   ];

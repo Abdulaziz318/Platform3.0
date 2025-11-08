@@ -29,9 +29,12 @@ interface ConversationBlock {
 function LLMLLMSetupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const editId = searchParams.get('edit');
   const experimentName = searchParams.get('name') || 'Untitled Experiment';
   
   const [activeTab, setActiveTab] = useState<TabType>('dataset');
+  const [editMode, setEditMode] = useState(false);
+  const [editingExperimentName, setEditingExperimentName] = useState('');
   const [dataset, setDataset] = useState<Dataset | null>(null);
   const [loading, setLoading] = useState(true);
   
@@ -51,7 +54,6 @@ function LLMLLMSetupContent() {
   const [conversationBlocks, setConversationBlocks] = useState<ConversationBlock[]>([]);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [draggedBlock, setDraggedBlock] = useState<ConversationBlock | null>(null);
-  const [showSavedPromptModal, setShowSavedPromptModal] = useState(false);
   const [savedPersonas, setSavedPersonas] = useState<SavedPersona[]>([]);
   const [saving, setSaving] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
@@ -60,6 +62,90 @@ function LLMLLMSetupContent() {
     loadExperimentData();
     loadSavedPersonas();
   }, []);
+
+  useEffect(() => {
+    // Check if we're in edit mode
+    if (editId) {
+      loadExistingExperiment(parseInt(editId));
+    }
+  }, [editId]);
+
+  const loadExistingExperiment = async (id: number) => {
+    try {
+      setLoading(true);
+      const experiment = await api.getExperiment(id);
+      
+      if (experiment.experiment_type !== 'llm-llm') {
+        alert('Invalid experiment type');
+        router.push('/dashboard/experiments');
+        return;
+      }
+
+      setEditMode(true);
+      setEditingExperimentName(experiment.name);
+
+      // Load dataset
+      const datasetData = await api.getDataset(experiment.dataset_id);
+      setDataset(datasetData);
+
+      const config = experiment.config as LLMExperimentConfig;
+
+      // Load personas from the config
+      const loadedPersonas: Persona[] = config.personas.map((p, idx) => ({
+        id: `persona-${Date.now()}-${idx}`,
+        name: p.name,
+        systemMessage: p.systemMessage
+      }));
+      setPersonas(loadedPersonas);
+
+      // Set persona IDs
+      const persona1 = loadedPersonas.find(p => {
+        const savedP = config.personas.find(cp => cp.name === p.name);
+        return savedP?.name === config.personas[0]?.name;
+      });
+      const persona2 = loadedPersonas.find(p => {
+        const savedP = config.personas.find(cp => cp.name === p.name);
+        return savedP?.name === config.personas[1]?.name;
+      });
+      
+      if (persona1) setColumn1Persona(persona1.id);
+      if (persona2) setColumn2Persona(persona2.id);
+
+      // Load conversation setup
+      setFirstToSpeak(config.conversation_setup.first_to_speak);
+      setInitialMessage(config.conversation_setup.initial_message);
+      setInitialMessageRole(config.conversation_setup.initial_message_role);
+
+      // Load conversation blocks
+      const blocks: ConversationBlock[] = config.conversation_setup.blocks.map((block: any, idx: number) => {
+        if (block.type === 'predefined') {
+          return {
+            id: `block-${idx}`,
+            type: 'predefined',
+            column: block.column,
+            turnNumber: block.turn_number,
+            content: block.content,
+            messageRole: block.message_role
+          };
+        } else {
+          return {
+            id: `block-${idx}`,
+            type: 'simulated',
+            column: 'both',
+            turnNumber: block.turn_number,
+            rounds: block.rounds
+          };
+        }
+      });
+      setConversationBlocks(blocks);
+
+      setLoading(false);
+    } catch (err) {
+      console.error('Failed to load experiment:', err);
+      alert('Failed to load experiment');
+      router.push('/dashboard/experiments');
+    }
+  };
 
   const loadSavedPersonas = async () => {
     try {
@@ -115,10 +201,30 @@ function LLMLLMSetupContent() {
   };
 
   const handleSelectPersona = (personaId: string) => {
-    const persona = personas.find(p => p.id === personaId);
-    if (persona) {
-      setEditingPersona(persona);
-      setSelectedPersonaId(personaId);
+    // Check if it's a saved persona from library
+    if (personaId.startsWith('saved-')) {
+      const savedId = parseInt(personaId.replace('saved-', ''));
+      const savedPersona = savedPersonas.find(p => p.id === savedId);
+      
+      if (savedPersona) {
+        // Create a new persona from the saved template
+        const newPersona: Persona = {
+          id: Date.now().toString(),
+          name: savedPersona.name,
+          systemMessage: savedPersona.system_message,
+        };
+        
+        setPersonas([...personas, newPersona]);
+        setEditingPersona(newPersona);
+        setSelectedPersonaId(newPersona.id);
+      }
+    } else {
+      // Regular persona selection
+      const persona = personas.find(p => p.id === personaId);
+      if (persona) {
+        setEditingPersona(persona);
+        setSelectedPersonaId(personaId);
+      }
     }
   };
 
@@ -157,15 +263,6 @@ function LLMLLMSetupContent() {
     alert('Persona saved successfully!');
   };
 
-  const handleUseSavedPersona = (savedPersona: SavedPersona) => {
-    if (!editingPersona) return;
-    
-    const updatedPersona = { ...editingPersona, systemMessage: savedPersona.system_message };
-    setEditingPersona(updatedPersona);
-    setPersonas(personas.map(p => p.id === updatedPersona.id ? updatedPersona : p));
-    setShowSavedPromptModal(false);
-  };
-
   const handleSaveExperiment = async () => {
     // Validation
     if (!dataset) {
@@ -191,7 +288,7 @@ function LLMLLMSetupContent() {
     setSaving(true);
     try {
       const config: LLMExperimentConfig = {
-        name: experimentName,
+        name: editMode ? editingExperimentName : experimentName,
         dataset_id: dataset.id,
         personas: personas,
         conversation_setup: {
@@ -204,8 +301,13 @@ function LLMLLMSetupContent() {
         },
       };
 
-      const result = await api.createLLMExperiment(config);
-      alert('Experiment saved successfully!');
+      if (editMode && editId) {
+        await api.updateExperiment(parseInt(editId), config);
+        alert('Experiment updated successfully!');
+      } else {
+        await api.createLLMExperiment(config);
+        alert('Experiment saved successfully!');
+      }
       router.push('/dashboard/experiments');
     } catch (err: any) {
       alert(err.message || 'Failed to save experiment');
@@ -336,13 +438,30 @@ function LLMLLMSetupContent() {
                 className="flex-1 px-3 py-2 text-sm border border-zinc-200 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900"
               >
                 <option value="">
-                  {personas.length === 0 ? 'No persona created' : 'Select persona...'}
+                  {personas.length === 0 && savedPersonas.length === 0 ? 'No persona available' : 'Select persona...'}
                 </option>
-                {personas.map((persona) => (
-                  <option key={persona.id} value={persona.id}>
-                    {persona.name}
-                  </option>
-                ))}
+                
+                {/* Current Personas */}
+                {personas.length > 0 && (
+                  <optgroup label="Current Personas">
+                    {personas.map((persona) => (
+                      <option key={persona.id} value={persona.id}>
+                        {persona.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                
+                {/* Saved Personas from Library */}
+                {savedPersonas.length > 0 && (
+                  <optgroup label="Saved Personas Library">
+                    {savedPersonas.map((persona) => (
+                      <option key={`saved-${persona.id}`} value={`saved-${persona.id}`}>
+                        {persona.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
               </select>
               <button
                 onClick={() => setShowPersonaModal(true)}
@@ -375,17 +494,9 @@ function LLMLLMSetupContent() {
             {editingPersona && (
               <div className="space-y-4">
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-xs font-medium text-zinc-600">
-                      System Message
-                    </label>
-                    <button
-                      onClick={() => setShowSavedPromptModal(true)}
-                      className="text-xs text-blue-600 hover:text-blue-700 hover:underline"
-                    >
-                      Use saved persona
-                    </button>
-                  </div>
+                  <label className="block text-xs font-medium text-zinc-600 mb-2">
+                    System Message
+                  </label>
                   <textarea
                     value={editingPersona.systemMessage}
                     onChange={(e) => handleUpdateSystemMessage(e.target.value)}
@@ -863,59 +974,6 @@ function LLMLLMSetupContent() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-zinc-50 flex flex-col">
-        {/* Saved Persona Modal */}
-        {showSavedPromptModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
-              <div className="p-6 border-b border-zinc-200 flex items-center justify-between flex-shrink-0">
-                <h2 className="text-lg font-semibold text-zinc-900">Select Saved Persona</h2>
-                <button
-                  onClick={() => setShowSavedPromptModal(false)}
-                  className="text-zinc-500 hover:text-zinc-700 text-2xl leading-none"
-                >
-                  ✕
-                </button>
-              </div>
-              
-              <div className="p-6 overflow-y-auto flex-1">
-                {savedPersonas.length === 0 ? (
-                  <div className="text-center py-12">
-                    <User size={48} className="mx-auto text-zinc-400 mb-4" />
-                    <p className="text-zinc-600 mb-4">No saved personas yet</p>
-                    <button
-                      onClick={() => {
-                        setShowSavedPromptModal(false);
-                        router.push('/dashboard/personas');
-                      }}
-                      className="px-4 py-2 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800"
-                    >
-                      Create Your First Persona
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {savedPersonas.map((persona) => (
-                      <button
-                        key={persona.id}
-                        onClick={() => handleUseSavedPersona(persona)}
-                        className="w-full text-left p-4 border border-zinc-200 rounded-lg hover:border-zinc-900 hover:bg-zinc-50 transition-colors"
-                      >
-                        <div className="font-medium mb-2">{persona.name}</div>
-                        <div className="text-sm text-zinc-600 line-clamp-2">
-                          {persona.system_message}
-                        </div>
-                        <div className="text-xs text-zinc-400 mt-2">
-                          Updated {new Date(persona.updated_at).toLocaleDateString()}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Persona Name Modal */}
         {showPersonaModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -972,7 +1030,14 @@ function LLMLLMSetupContent() {
               >
                 <ArrowLeft className="h-5 w-5 text-zinc-600" />
               </button>
-              <h1 className="text-xl font-semibold text-zinc-900">{experimentName}</h1>
+              <div>
+                <h1 className="text-xl font-semibold text-zinc-900">
+                  {editMode ? editingExperimentName : experimentName}
+                </h1>
+                {editMode && (
+                  <p className="text-sm text-zinc-500">Editing experiment</p>
+                )}
+              </div>
             </div>
 
             {/* Right side buttons */}

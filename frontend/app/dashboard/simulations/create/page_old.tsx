@@ -3,7 +3,7 @@
 import ProtectedRoute from '@/components/ProtectedRoute';
 import DashboardLayout from '@/components/DashboardLayout';
 
-export default function APIKeysPage() {
+export default function CreateSimulationPage() {
   return (
     <ProtectedRoute>
       <DashboardLayout>
