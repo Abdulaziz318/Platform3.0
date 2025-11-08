@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api, Dataset, SavedPersona, LLMExperimentConfig } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -26,7 +26,7 @@ interface ConversationBlock {
   messageRole?: MessageRole; // for initial message and predefined responses
 }
 
-export default function LLMLLMSetupPage() {
+function LLMLLMSetupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const experimentName = searchParams.get('name') || 'Untitled Experiment';
@@ -1137,5 +1137,20 @@ export default function LLMLLMSetupPage() {
         )}
       </div>
     </ProtectedRoute>
+  );
+}
+
+export default function LLMLLMSetupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-zinc-900 mx-auto"></div>
+          <p className="mt-4 text-sm text-zinc-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <LLMLLMSetupContent />
+    </Suspense>
   );
 }

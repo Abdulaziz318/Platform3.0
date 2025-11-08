@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Upload, Settings, Sliders, Brain, Zap, ArrowLeft } from 'lucide-react';
 
-export default function HumanLLMSetupPage() {
+function HumanLLMSetupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const experimentName = searchParams.get('name') || 'Untitled Experiment';
@@ -401,5 +401,20 @@ export default function HumanLLMSetupPage() {
         </div>
       </div>
     </ProtectedRoute>
+  );
+}
+
+export default function HumanLLMSetupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-zinc-900 mx-auto"></div>
+          <p className="mt-4 text-sm text-zinc-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <HumanLLMSetupContent />
+    </Suspense>
   );
 }
