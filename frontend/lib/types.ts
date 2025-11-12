@@ -155,12 +155,21 @@ export interface Simulation {
   endpoint_type: EndpointType;
   llm_parameters: LLMParameters;
   num_rows: number; // Number of dataset rows to simulate
+  // Backend fields for compatibility
+  row_start?: number;
+  row_end?: number;
+  rows_completed?: number;
+  rows_failed?: number;
+  total_tokens_used?: number;
+  total_cost?: number;
+  // Status and progress
   status: SimulationStatus;
   progress?: number; // 0-100 for running/stopped/finished/error
   current_row?: number; // Current row being processed
   error_message?: string;
   started_at?: string;
   completed_at?: string;
+  finished_at?: string; // Backend uses this instead of completed_at
   created_at: string;
   updated_at: string;
 }

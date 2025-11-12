@@ -21,13 +21,19 @@ export default function MySimulationsPage() {
   useEffect(() => {
     loadSimulations();
     
-    // Poll for updates every 3 seconds
+    // Only poll for updates if there are running simulations
     const interval = setInterval(() => {
-      loadSimulations();
+      const hasRunningSimulations = simulations.some(
+        s => s.status === 'running'
+      );
+      
+      if (hasRunningSimulations) {
+        loadSimulations();
+      }
     }, 3000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [simulations]); // Re-run effect when simulations change
 
   const loadSimulations = async () => {
     try {

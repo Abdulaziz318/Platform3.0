@@ -6,7 +6,7 @@ export type { User, Experiment, ExperimentConfig, Dataset, DatasetConfig, LLMExp
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // Mock mode - set to false when backend is ready
-const MOCK_MODE = true;
+const MOCK_MODE = false;
 
 // Mock data store
 let mockExperiments: Experiment[] = [
@@ -856,12 +856,60 @@ class APIClient {
 
   // ==================== Simulation Methods ====================
 
+  // Helper method to normalize backend simulation response to frontend format
+  private normalizeSimulation(backendSim: any): Simulation {
+    // Calculate num_rows if not provided
+    const numRows = backendSim.num_rows || 
+                    (backendSim.row_start !== undefined && backendSim.row_end !== undefined 
+                      ? (backendSim.row_end - backendSim.row_start) + 1 
+                      : 0);
+
+    return {
+      id: backendSim.id,
+      name: backendSim.name,
+      experiment_id: backendSim.experiment_id,
+      experiment_name: backendSim.experiment_name || '',
+      experiment_type: backendSim.experiment_type || 'llm-llm',
+      dataset_id: backendSim.dataset_id,
+      dataset_name: backendSim.dataset_name || '',
+      provider_id: backendSim.provider_id || backendSim.llm_provider_id,
+      provider_name: backendSim.provider_name || '',
+      model: backendSim.model || backendSim.model_name,
+      endpoint_type: backendSim.endpoint_type || 'responses',
+      llm_parameters: backendSim.llm_parameters || {
+        temperature: backendSim.temperature,
+        max_tokens: backendSim.max_tokens,
+        top_p: backendSim.top_p,
+        frequency_penalty: backendSim.frequency_penalty,
+        presence_penalty: backendSim.presence_penalty,
+      },
+      num_rows: numRows,
+      row_start: backendSim.row_start,
+      row_end: backendSim.row_end,
+      rows_completed: backendSim.rows_completed,
+      rows_failed: backendSim.rows_failed,
+      total_tokens_used: backendSim.total_tokens_used,
+      total_cost: backendSim.total_cost,
+      status: backendSim.status,
+      progress: backendSim.progress || backendSim.progress_percentage,
+      current_row: backendSim.current_row,
+      error_message: backendSim.error_message,
+      started_at: backendSim.started_at,
+      completed_at: backendSim.completed_at || backendSim.finished_at,
+      finished_at: backendSim.finished_at,
+      created_at: backendSim.created_at,
+      updated_at: backendSim.updated_at,
+    };
+  }
+
   async listSimulations(): Promise<Simulation[]> {
     if (MOCK_MODE) {
       return Promise.resolve([...mockSimulations]);
     }
 
-    return this.request('/api/simulations');
+    const data = await this.request('/api/simulations/');
+    // Normalize backend responses to frontend format
+    return data.map((sim: any) => this.normalizeSimulation(sim));
   }
 
   async getSimulation(id: number): Promise<Simulation> {
@@ -871,7 +919,9 @@ class APIClient {
       return { ...sim };
     }
 
-    return this.request(`/api/simulations/${id}`);
+    const data = await this.request(`/api/simulations/${id}`);
+    // Normalize backend response to frontend format
+    return this.normalizeSimulation(data);
   }
 
   async createSimulation(request: CreateSimulationRequest): Promise<{ simulation_id: number }> {
@@ -951,7 +1001,7 @@ class APIClient {
     }
 
     await this.request(`/api/simulations/${id}`, {
-      method: 'PUT',
+      method: 'PATCH',
       body: JSON.stringify(request),
     });
   }
@@ -994,9 +1044,10 @@ class APIClient {
       return;
     }
 
+    // Backend doesn't need num_rows in body - it uses row_start/row_end from simulation config
     await this.request(`/api/simulations/${id}/run`, {
       method: 'POST',
-      body: JSON.stringify({ num_rows: numRows }),
+      body: JSON.stringify({}),
     });
   }
 
