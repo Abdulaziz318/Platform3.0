@@ -101,9 +101,9 @@ export default function PersonasPage() {
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900">Saved Personas</h1>
+            <h1 className="text-2xl font-bold text-zinc-900">Instruction Prompts</h1>
             <p className="text-sm text-zinc-600 mt-1">
-              Create and manage reusable persona templates for your experiments
+              Create and manage reusable instruction prompt templates for your experiments
             </p>
           </div>
           <button
@@ -111,25 +111,25 @@ export default function PersonasPage() {
             className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-zinc-900 hover:bg-zinc-800 transition-colors"
           >
             <Plus className="h-4 w-4 mr-2" />
-            New Persona
+            New Instruction Prompt
           </button>
         </div>
 
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-zinc-900 mx-auto"></div>
-            <p className="mt-4 text-sm text-zinc-600">Loading personas...</p>
+            <p className="mt-4 text-sm text-zinc-600">Loading instruction prompts...</p>
           </div>
         ) : personas.length === 0 ? (
           <div className="text-center py-12 bg-white border border-zinc-200 rounded-xl">
             <User className="h-12 w-12 text-zinc-400 mx-auto mb-4" />
-            <p className="text-zinc-600 mb-4">No saved personas yet</p>
+            <p className="text-zinc-600 mb-4">No saved instruction prompts yet</p>
             <button
               onClick={() => handleOpenModal()}
               className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-zinc-900 hover:bg-zinc-800 transition-colors"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Create Your First Persona
+              Create Your First Instruction Prompt
             </button>
           </div>
         ) : (
@@ -178,7 +178,7 @@ export default function PersonasPage() {
               {/* Modal Header */}
               <div className="flex justify-between items-center px-6 py-4 border-b border-zinc-200">
                 <h2 className="text-lg font-semibold text-zinc-900">
-                  {editingPersona ? 'Edit Persona' : 'Create New Persona'}
+                  {editingPersona ? 'Edit Instruction Prompt' : 'Create New Instruction Prompt'}
                 </h2>
                 <button
                   onClick={handleCloseModal}
@@ -200,31 +200,31 @@ export default function PersonasPage() {
                   {/* Persona Name */}
                   <div>
                     <label className="block text-sm font-medium text-zinc-700 mb-2">
-                      Persona Name
+                      Instruction Prompt Name
                     </label>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900"
-                      placeholder="e.g., Friendly Customer Support"
+                      placeholder="e.g., Persuader Bot Instruction Prompt"
                     />
                   </div>
 
                   {/* System Message */}
                   <div>
                     <label className="block text-sm font-medium text-zinc-700 mb-2">
-                      System Message
+                      Instruction Prompt
                     </label>
                     <textarea
                       value={formData.systemMessage}
                       onChange={(e) => setFormData({ ...formData, systemMessage: e.target.value })}
                       className="w-full px-3 py-2 text-sm border border-zinc-200 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 resize-none"
-                      placeholder="Enter the system message that defines this persona's behavior..."
+                      placeholder="Enter the instruction prompt that defines the behavior..."
                       rows={12}
                     />
                     <p className="mt-1 text-xs text-zinc-500">
-                      This message will be used to initialize the LLM's behavior for this persona.
+                      This instruction will be used to initialize the LLM's behavior.
                     </p>
                   </div>
                 </div>

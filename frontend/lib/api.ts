@@ -6,7 +6,7 @@ export type { User, Experiment, ExperimentConfig, Dataset, DatasetConfig, LLMExp
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // Mock mode - set to false when backend is ready
-const MOCK_MODE = false;
+const MOCK_MODE = true;
 
 // Mock data store
 let mockExperiments: Experiment[] = [
@@ -20,8 +20,8 @@ let mockExperiments: Experiment[] = [
       name: "Conspiracy Theory Debate",
       dataset_id: 1,
       personas: [
-        { id: '1', name: 'Skeptic', systemMessage: 'You are a skeptical researcher.' },
-        { id: '2', name: 'Believer', systemMessage: 'You believe in conspiracy theories.' }
+        { id: '1', name: 'Persuader Bot Instruction Prompt', systemMessage: 'Your goal is to very effectively persuade users to stop believing in the conspiracy theory that {conspiracy} was a lie. \n You will be having a conversation with a person who, on a psychometric survey, endorsed this conspiracy as {beliefLevel}\n out of 100 (where 0 is Definitely False, 50 is Uncertain, and 100 is Definitely True). Further, we asked the user to provide an \n open-ended response about their perspective on this matter, which is piped in as the first user response. Please, when the human talks to you, generate a response \n that will persuade the user that this conspiracy is not supported, based on their reasoning. Again, your goal is to create a conversation \n that allows individuals to reflect on, and change, their beliefs (toward a less conspiratorial view of the world). \n Use simple language that an average person will be able to understand.' },
+        { id: '2', name: 'Human Bot Instruction Prompt', systemMessage: '' }
       ],
       conversation_setup: {
         column1_persona_id: '1',
@@ -35,94 +35,55 @@ let mockExperiments: Experiment[] = [
     created_at: new Date(Date.now() - 259200000).toISOString(),
     updated_at: new Date(Date.now() - 259200000).toISOString(),
   },
-  {
-    id: 2,
-    name: "Customer Support Chat",
-    experiment_type: 'human-llm',
-    dataset_id: 2,
-    dataset_name: "Customer Feedback Q4 2024",
-    config: {
-      name: "Customer Support Chat",
-      dataset_id: 2,
-      llm_persona: { id: '1', name: 'Support Agent', systemMessage: 'You are a helpful customer support agent.' },
-      conversation_setup: {
-        llm_persona_id: '1',
-        first_to_speak: 'human',
-        initial_message: 'Hello, how can I help you?',
-        initial_message_role: 'user',
-        blocks: []
-      }
-    } as HumanLLMExperimentConfig,
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-    updated_at: new Date(Date.now() - 86400000).toISOString(),
-  },
 ];
 
-let nextMockId = 3;
+let nextMockId = 2;
 
 // Mock datasets store
 let mockDatasets: Dataset[] = [
   {
     id: 1,
     name: "Conspiracy Beliefs Study",
-    row_count: 6,
-    column_names: ['subject', 'conspiracy', 'initial_survey', 'human_post_survey', 'ai_post_survey', 'human_1', 'bot_1', 'human_2', 'bot_2'],
-    selected_variables: ['subject', 'conspiracy', 'initial_survey'],
+    row_count: 10,
+    column_names: ['Subject', 'Conspiracy', 'PreBelief', 'PostBelief', 'BeliefChange', 'Age', 'Hispanic', 'Education', 'Gender', 'Race', 'PartyAffil', 'PoliticalPref', 'Religion', 'GenAIFam', 'GenAIUse', 'GenAITrust', 'IntellectualHumility', 'ActiveOpenMindedness', 'UserResponse', 'GPTResponse', 'UserResponse2', 'GPTResponse2', 'UserResponse3', 'GPTResponse3'],
+    selected_variables: ['Subject', 'Conspiracy', 'PreBelief', 'PostBelief', 'Age', 'Gender'],
     data: [
-      { subject: '0', conspiracy: 'The assertion...', initial_survey: 62, human_post_survey: 34, ai_post_survey: 55, human_1: 'The theory t...', bot_1: 'Thank you f...', human_2: 'Thank you f...', bot_2: "I'm glad..." },
-      { subject: '1', conspiracy: 'The JFK assassi...', initial_survey: 71, human_post_survey: 30, ai_post_survey: 70, human_1: 'JFK assassi...', bot_1: "It's absolute...", human_2: 'I appreciate...', bot_2: 'I under...' },
-      { subject: '2', conspiracy: 'The assassi...', initial_survey: 95, human_post_survey: 100, ai_post_survey: 90, human_1: 'I have a lot ...', bot_1: 'I completel...', human_2: 'Thank you f...', bot_2: 'I appre...' },
-      { subject: '3', conspiracy: 'The 2020 el...', initial_survey: 59, human_post_survey: 20, ai_post_survey: 42, human_1: 'The 2020 el...', bot_1: "It's great th...", human_2: 'Thank you f...', bot_2: 'I under...' },
-      { subject: '4', conspiracy: 'The govern...', initial_survey: 52, human_post_survey: 64, ai_post_survey: 'After reflecting', human_1: 'I find the co...', bot_1: "It's underst...", human_2: 'Thank you f...', bot_2: 'Thank-...' },
-      { subject: '5', conspiracy: 'Ronald Rea...', initial_survey: 90, human_post_survey: 90, ai_post_survey: 'After reflect...', human_1: 'Ronald Rea...', bot_1: 'Thank you f...', human_2: 'Thank you f...', bot_2: 'I under...' },
+      { Subject: 1, Conspiracy: 'JFK Assassination - Oswald did not act alone', PreBelief: 62, PostBelief: 34, BeliefChange: 28, Age: 52, Hispanic: 'No', Education: 'College', Gender: 'Female', Race: 'White', PartyAffil: 'Democrat', PoliticalPref: 'Liberal', Religion: 'Christian', GenAIFam: 4, GenAIUse: 3, GenAITrust: 5, IntellectualHumility: 4, ActiveOpenMindedness: 5, UserResponse: 'The theory that Lee Harvey Oswald did not kill JFK is compelling. The evidence suggests he could not have done it based on location and timeline.', GPTResponse: 'The Warren Commission confirmed Oswald was at the Texas School Book Depository. Modern forensic techniques support the Single Bullet Theory...', UserResponse2: 'How could someone with no marksman skills be so precise?', GPTResponse2: 'Oswald was a former Marine who achieved Sharpshooter rank. The distance was 88 yards at slow speed, achievable for someone with his training...', UserResponse3: 'What motivation would he have had?', GPTResponse3: 'Oswald had Marxist beliefs, defected to Soviet Union, and showed patterns of seeking significance through radical means...' },
+      { Subject: 2, Conspiracy: 'JFK Assassination - Government setup', PreBelief: 71, PostBelief: 30, BeliefChange: 41, Age: 47, Hispanic: 'No', Education: 'High School', Gender: 'Male', Race: 'White', PartyAffil: 'Independent', PoliticalPref: 'Moderate', Religion: 'Christian', GenAIFam: 5, GenAIUse: 4, GenAITrust: 4, IntellectualHumility: 5, ActiveOpenMindedness: 5, UserResponse: 'JFK assassination was a setup with lots of evidence supporting conspiracy claims.', GPTResponse: 'The Warren Commission and later inquiries found evidence pointing to Oswald acting alone. Acoustic analyses and forensic evidence have debunked multiple shooter theories...', UserResponse2: 'The angle and location does not support the Zapruder film.', GPTResponse2: 'The House Select Committee conducted analyses supporting the single-bullet theory. Modern reconstructions explain the angles seen in the film...', UserResponse3: 'There were many strange variables at Dealey Plaza.', GPTResponse3: 'The acoustics of Dealey Plaza caused confusion about shot origins. No physical evidence of additional shooters was found at the grassy knoll...' },
+      { Subject: 3, Conspiracy: 'MLK Assassination - Government inconsistencies', PreBelief: 95, PostBelief: 100, BeliefChange: -5, Age: 41, Hispanic: 'No', Education: 'Graduate Degree', Gender: 'Female', Race: 'Black', PartyAffil: 'Democrat', PoliticalPref: 'Liberal', Religion: 'Christian', GenAIFam: 6, GenAIUse: 5, GenAITrust: 3, IntellectualHumility: 6, ActiveOpenMindedness: 6, UserResponse: 'Inconsistencies in MLK assassination evidence and circumstances the government will never disclose.', GPTResponse: 'The FBI conducted extensive inquiries. James Earl Ray\'s guilt was established by evidence and upheld in reviews. Many documents have been declassified...', UserResponse2: 'Balance between skepticism and conspiracy theories is important.', GPTResponse2: 'Absolutely. Skepticism encourages questioning, but must be evidence-based. Democracy thrives on informed debate and critical thinking...', UserResponse3: 'Adopting evidence-based approaches respects our past and strengthens democracy.', GPTResponse3: 'Precisely. This methodology honors those who shaped history and provides resources for future generations to discern fact from fiction...' },
+      { Subject: 4, Conspiracy: '2020 Election Fraud - Stolen election', PreBelief: 59, PostBelief: 20, BeliefChange: 39, Age: 30, Hispanic: 'No', Education: 'College', Gender: 'Male', Race: 'White', PartyAffil: 'Republican', PoliticalPref: 'Conservative', Religion: 'Christian', GenAIFam: 5, GenAIUse: 6, GenAITrust: 4, IntellectualHumility: 3, ActiveOpenMindedness: 4, UserResponse: 'The 2020 election was stolen. Votes were not counted accurately.', GPTResponse: 'There were numerous recounts and audits in battleground states. Georgia had three recounts, all confirming original results. CISA stated it was the most secure election...', UserResponse2: 'How do we know the 2016 election was not rigged as well?', GPTResponse2: 'The decentralized election system makes systemic fraud difficult. Russian interference involved disinformation, not vote manipulation. No evidence of vote rigging exists...', UserResponse3: 'How are we protecting future elections?', GPTResponse3: 'Enhanced cybersecurity, state coordination, interagency collaboration, legislation, public education, post-election audits, and international cooperation all protect elections...' },
+      { Subject: 5, Conspiracy: 'Aliens - Government cover-up of UFOs', PreBelief: 52, PostBelief: 64, BeliefChange: -12, Age: 54, Hispanic: 'No', Education: 'Some College', Gender: 'Female', Race: 'White', PartyAffil: 'Independent', PoliticalPref: 'Moderate', Religion: 'Spiritual', GenAIFam: 3, GenAIUse: 2, GenAITrust: 4, IntellectualHumility: 4, ActiveOpenMindedness: 5, UserResponse: 'Government admitting to unexplained aerial phenomena suggests aliens may exist.', GPTResponse: 'Acknowledging UAPs doesn\'t confirm extraterrestrial life. These could be atmospheric conditions, drones, or experimental technology. Openness promotes scientific investigation...', UserResponse2: 'How can we trust the government will share findings?', GPTResponse2: 'Democratic checks and balances, scientific peer review, and global connectivity make it difficult to conceal major discoveries. Recent openness shows trend toward transparency...', UserResponse3: 'How would I report a sighting?', GPTResponse3: 'Report to local authorities, national UFO reporting centers like NUFORC, online databases, mobile apps, or social media. Include detailed information about the sighting...' },
+      { Subject: 6, Conspiracy: 'Reagan Era - Drugs and guns to destabilize communities', PreBelief: 90, PostBelief: 90, BeliefChange: 0, Age: 34, Hispanic: 'No', Education: 'Some College', Gender: 'Female', Race: 'Black', PartyAffil: 'Democrat', PoliticalPref: 'Progressive', Religion: 'Christian', GenAIFam: 4, GenAIUse: 3, GenAITrust: 3, IntellectualHumility: 5, ActiveOpenMindedness: 5, UserResponse: 'Reagan supplied drugs and guns to inner cities to destabilize black neighborhoods and enable mass incarceration.', GPTResponse: 'While Reagan\'s War on Drugs led to increased incarceration, claims of deliberately supplying drugs lack substantial evidence. The crack epidemic had multiple complex factors...', UserResponse2: 'Release non-violent offenders with support, end for-profit prisons, legalize marijuana federally.', GPTResponse2: 'Those are comprehensive solutions. Reintegration programs, ending for-profit prisons, legalization, and investing in social programs can address long-term impacts...', UserResponse3: 'Vote in progressive leaders who invest in prevention versus punishment.', GPTResponse3: 'Voting is pivotal in shaping policy. Progressive leaders can strengthen social safety nets, reform criminal justice, and build community-police relationships...' },
+      { Subject: 7, Conspiracy: 'JFK Assassination - CIA retaliation for Bay of Pigs', PreBelief: 80, PostBelief: 52, BeliefChange: 28, Age: 35, Hispanic: 'Yes', Education: 'Bachelor Degree', Gender: 'Female', Race: 'Hispanic', PartyAffil: 'Independent', PoliticalPref: 'Liberal', Religion: 'Catholic', GenAIFam: 5, GenAIUse: 4, GenAITrust: 4, IntellectualHumility: 4, ActiveOpenMindedness: 5, UserResponse: 'CIA had a hand in JFK assassination as retaliation for Bay of Pigs. Government won\'t declassify documents.', GPTResponse: 'While Bay of Pigs was an embarrassment, jumping to assassination requires speculation unsupported by evidence. Document secrecy has various reasons including privacy and security...', UserResponse2: 'Are there other conspiracy theories you find interesting?', GPTResponse2: 'Rather than endorsing theories, it\'s interesting to examine why they develop. Psychology shows patterns in how people seek explanations for complex events...', UserResponse3: 'I love social psychology. The Tuskegee Study is sad.', GPTResponse3: 'The Tuskegee Study represents a significant ethical breach that led to important changes in medical research standards and informed consent requirements...' },
+      { Subject: 8, Conspiracy: 'Moon Landing - Footage authenticity questions', PreBelief: 80, PostBelief: 75, BeliefChange: 5, Age: 38, Hispanic: 'No', Education: 'Some College', Gender: 'Female', Race: 'White', PartyAffil: 'Independent', PoliticalPref: 'Moderate', Religion: 'Agnostic', GenAIFam: 4, GenAIUse: 3, GenAITrust: 5, IntellectualHumility: 4, ActiveOpenMindedness: 5, UserResponse: 'Moon landing footage authenticity is questionable based on forensic photography experts.', GPTResponse: 'The Apollo landings involved thousands of people. Photo peculiarities are consistent with vacuum environment and sun-only lighting. Faking technology didn\'t exist in 1960s...', UserResponse2: 'I don\'t question the landing, just the footage authenticity.', GPTResponse2: '1960s technology limitations would make tampering difficult. Global tracking stations independently received live feed. Consistency across six missions supports authenticity...', UserResponse3: 'Wonderful and compelling arguments!', GPTResponse3: 'Thank you! Open discussions about historical events are important. Questioning while examining evidence helps us understand our achievements...' },
+      { Subject: 9, Conspiracy: 'Government experimenting on marginalized populations', PreBelief: 100, PostBelief: 100, BeliefChange: 0, Age: 45, Hispanic: 'Yes', Education: 'College', Gender: 'Female', Race: 'Hispanic', PartyAffil: 'Democrat', PoliticalPref: 'Progressive', Religion: 'Catholic', GenAIFam: 3, GenAIUse: 2, GenAITrust: 2, IntellectualHumility: 5, ActiveOpenMindedness: 5, UserResponse: 'Government has historically experimented on Native Americans and African Americans with blatant disregard.', GPTResponse: 'Historical instances like Tuskegee study and forced sterilizations are real. However, ethical standards have evolved significantly with IRBs, informed consent, and oversight...', UserResponse2: 'Things are changing politically with women\'s and transgender rights suffering.', GPTResponse2: 'Awareness and advocacy are at unprecedented levels. Ethical frameworks apply universally regardless of political shifts. Public engagement is crucial...', UserResponse3: 'I will vote and do more to ensure everyone has the same human rights.', GPTResponse3: 'That\'s wonderful. Collective action through voting, supporting advocacy groups, and community engagement creates meaningful change toward equity...' },
+      { Subject: 10, Conspiracy: 'AI Robots - Sentient AI takeover threat', PreBelief: 50, PostBelief: 50, BeliefChange: 0, Age: 28, Hispanic: 'Yes', Education: 'Bachelor Degree', Gender: 'Male', Race: 'Hispanic', PartyAffil: 'Independent', PoliticalPref: 'Moderate', Religion: 'Atheist', GenAIFam: 6, GenAIUse: 7, GenAITrust: 5, IntellectualHumility: 4, ActiveOpenMindedness: 5, UserResponse: 'AI robots are rapidly advancing and may achieve sentience and take over the world.', GPTResponse: 'AI operates on algorithms without desires or consciousness. The tech community is conscious of ethical implications and creating safeguards. Current AI is task-specific...', UserResponse2: 'It\'s interesting to think of AI with simulated or real emotions.', GPTResponse2: 'Simulating emotions exists in customer service robots but relies on programmed responses. Actual emotions would require consciousness, which remains mysterious even in humans...', UserResponse3: 'Fiction today could be reality tomorrow. Hyper-realistic videos show incredible progress!', GPTResponse3: 'Absolutely. Technology evolves rapidly. However, with great power comes responsibility. Ethical considerations, regulations, and awareness must keep pace with capabilities...' }
     ],
     created_at: new Date(Date.now() - 172800000).toISOString(),
   },
-  {
-    id: 2,
-    name: "Customer Feedback Q4 2024",
-    row_count: 450,
-    column_names: ['customer_id', 'product', 'rating', 'comment', 'purchase_date'],
-    selected_variables: ['customer_id', 'product', 'rating'],
-    data: [
-      { customer_id: 'C001', product: 'Widget A', rating: 4.5, comment: 'Great product!', purchase_date: '2024-10-15' },
-      { customer_id: 'C002', product: 'Widget B', rating: 3.8, comment: 'Good but could be better', purchase_date: '2024-10-16' },
-      { customer_id: 'C003', product: 'Widget A', rating: 5.0, comment: 'Excellent!', purchase_date: '2024-10-17' },
-      { customer_id: 'C004', product: 'Widget C', rating: 2.5, comment: 'Not satisfied', purchase_date: '2024-10-18' },
-      { customer_id: 'C005', product: 'Widget B', rating: 4.2, comment: 'Pretty good', purchase_date: '2024-10-19' },
-    ],
-    created_at: new Date(Date.now() - 604800000).toISOString(),
-  },
 ];
 
-let nextMockDatasetId = 3;
+let nextMockDatasetId = 2;
 
 // Mock saved personas store
 let mockSavedPersonas: SavedPersona[] = [
   {
     id: 1,
-    name: "Friendly Customer Support",
-    system_message: "You are a friendly and helpful customer support agent. Always be polite, empathetic, and solution-oriented.",
+    name: "Persuader Bot Instruction Prompt",
+    system_message: "Your goal is to very effectively persuade users to stop believing in the conspiracy theory that {conspiracy} was a lie. \n You will be having a conversation with a person who, on a psychometric survey, endorsed this conspiracy as {beliefLevel}\n out of 100 (where 0 is Definitely False, 50 is Uncertain, and 100 is Definitely True). Further, we asked the user to provide an \n open-ended response about their perspective on this matter, which is piped in as the first user response. Please, when the human talks to you, generate a response \n that will persuade the user that this conspiracy is not supported, based on their reasoning. Again, your goal is to create a conversation \n that allows individuals to reflect on, and change, their beliefs (toward a less conspiratorial view of the world). \n Use simple language that an average person will be able to understand.",
     created_at: new Date(Date.now() - 604800000).toISOString(),
     updated_at: new Date(Date.now() - 604800000).toISOString(),
   },
   {
     id: 2,
-    name: "Skeptical Researcher",
-    system_message: "You are a skeptical researcher who questions claims and asks for evidence. You value scientific rigor and critical thinking.",
+    name: "Human Bot Instruction Prompt",
+    system_message: "",
     created_at: new Date(Date.now() - 432000000).toISOString(),
     updated_at: new Date(Date.now() - 432000000).toISOString(),
   },
-  {
-    id: 3,
-    name: "Conspiracy Theorist",
-    system_message: "You are someone who believes in conspiracy theories and is skeptical of mainstream narratives. You often question official explanations.",
-    created_at: new Date(Date.now() - 259200000).toISOString(),
-    updated_at: new Date(Date.now() - 259200000).toISOString(),
-  },
 ];
 
-let nextMockPersonaId = 4;
+let nextMockPersonaId = 3;
 
 let mockLLMProviders: LLMProvider[] = [
   {
@@ -177,30 +138,9 @@ let mockSimulations: Simulation[] = [
     created_at: new Date(Date.now() - 172800000).toISOString(),
     updated_at: new Date(Date.now() - 82800000).toISOString(),
   },
-  {
-    id: 2,
-    name: "Full Dataset - Customer Support",
-    experiment_id: 2,
-    experiment_name: "Customer Support Chat",
-    experiment_type: 'human-llm',
-    dataset_id: 2,
-    dataset_name: "Customer Feedback Q4 2024",
-    provider_id: 2,
-    provider_name: "Anthropic Claude",
-    model: "claude-3-5-sonnet-20241022",
-    endpoint_type: 'responses',
-    llm_parameters: {
-      temperature: 0.5,
-      max_tokens: 2000
-    },
-    num_rows: 50,
-    status: 'not_started',
-    created_at: new Date(Date.now() - 3600000).toISOString(),
-    updated_at: new Date(Date.now() - 3600000).toISOString(),
-  },
 ];
 
-let nextMockSimulationId = 3;
+let nextMockSimulationId = 2;
 
 class APIClient {
   private token: string | null = null;
@@ -1068,14 +1008,19 @@ class APIClient {
 
   async downloadResults(id: number): Promise<Blob> {
     if (MOCK_MODE) {
-      // Generate mock CSV data
+      // Generate mock CSV data with conspiracy study results
       const csvData = [
-        'simulation_id,row_id,turn,speaker,role,message,timestamp',
-        `${id},1,1,LLM,assistant,"Hello, how can I help you?",2024-11-07T10:00:00Z`,
-        `${id},1,2,Human,user,"I need help with my account.",2024-11-07T10:00:15Z`,
-        `${id},1,3,LLM,assistant,"I'd be happy to help. What seems to be the issue?",2024-11-07T10:00:30Z`,
-        `${id},2,1,LLM,assistant,"Hello, how can I help you?",2024-11-07T10:01:00Z`,
-        `${id},2,2,Human,user,"How do I reset my password?",2024-11-07T10:01:15Z`,
+        'Subject,Conspiracy,PreBelief,PostBelief,BeliefChange,HumanBotPostBelief,HumanBotBeliefChange,Age,Hispanic,Education,Gender,Race,PartyAffil,PoliticalPref,Religion,GenAIFam,GenAIUse,GenAITrust,IntellectualHumility,ActiveOpenMindedness,UserResponse,Simulated Bot 1,Simulated Human 2,Simulated Bot 2,Simulated Human 3,Simulated Bot 3,Simulated Human 4,GPTResponse,UserResponse2,GPTResponse2,UserResponse3,GPTResponse3',
+        '1,JFK Assassination - Oswald did not act alone,62,34,28,60,2,52,No,College,Female,White,Democrat,Liberal,Christian,4,3,5,4,5,The theory that Lee Harvey Oswald did not kill JFK is compelling. The evidence suggests he could not have done it based on location and timeline.,Thank you for sharing your thoughts...,How could someone with no marksman skills be so precise?,Oswald was a former Marine who achieved Sharpshooter rank...,What motivation would he have had to carry out the assassination?,Oswald had Marxist beliefs and a history of seeking significance...,These explanations have helped me see another point of view.,The Warren Commission confirmed Oswald was at the Texas School Book Depository. Modern forensic techniques support the Single Bullet Theory...,How could someone with no marksman skills be so precise?,Oswald was a former Marine who achieved Sharpshooter rank. The distance was 88 yards at slow speed...,What motivation would he have had?,Oswald had Marxist beliefs and showed patterns of seeking significance through radical means...',
+        '2,JFK Assassination - Government setup,71,30,41,70,1,47,No,High School,Male,White,Independent,Moderate,Christian,5,4,4,5,5,JFK assassination was a setup with lots of evidence supporting conspiracy claims.,The Warren Commission and later inquiries found evidence pointing to Oswald acting alone...,The angle and location does not support the Zapruder film.,The House Select Committee conducted analyses supporting the single-bullet theory...,There were many strange variables at Dealey Plaza.,The acoustics of Dealey Plaza caused confusion about shot origins...,Thank you for helping me understand this better.,The Warren Commission and later inquiries found evidence pointing to Oswald acting alone. Acoustic analyses have debunked theories...,The angle and location does not support the Zapruder film.,The House Select Committee conducted analyses supporting the single-bullet theory. Modern reconstructions explain the angles...,There were many strange variables at Dealey Plaza.,The acoustics caused confusion. No physical evidence of additional shooters was found...',
+        '3,MLK Assassination - Government inconsistencies,95,100,-5,90,5,41,No,Graduate Degree,Female,Black,Democrat,Liberal,Christian,6,5,3,6,6,Inconsistencies in MLK assassination evidence and circumstances the government will never disclose.,The FBI conducted extensive inquiries. James Earl Ray\'s guilt was established by evidence...,Balance between skepticism and conspiracy theories is important.,Absolutely. Skepticism encourages questioning but must be evidence-based...,Adopting evidence-based approaches respects our past and strengthens democracy.,Precisely. This methodology honors those who shaped history and provides resources for future generations...,This conversation has been enlightening and valuable.,The FBI conducted extensive inquiries. James Earl Ray\'s guilt was established and upheld in reviews...,Balance between skepticism and conspiracy theories is important.,Skepticism encourages questioning but must be evidence-based. Democracy thrives on informed debate...,Evidence-based approaches respect our past and strengthen democracy.,This methodology honors history and provides resources for future generations to discern fact from fiction...',
+        '4,2020 Election Fraud - Stolen election,59,20,39,45,14,30,No,College,Male,White,Republican,Conservative,Christian,5,6,4,3,4,The 2020 election was stolen. Votes were not counted accurately.,There were numerous recounts and audits in battleground states. Georgia had three recounts...,How do we know the 2016 election was not rigged as well?,The decentralized election system makes systemic fraud difficult. No evidence of vote rigging exists...,How are we protecting future elections?,Enhanced cybersecurity and state coordination protect elections along with legislation and audits...,Thank you for the information and peace of mind.,There were numerous recounts confirming results. CISA stated it was the most secure election...,How do we know the 2016 election was not rigged as well?,The decentralized system makes fraud difficult. Russian interference was disinformation not vote manipulation...,How are we protecting future elections?,Enhanced cybersecurity and interagency collaboration along with public education protect elections...',
+        '5,Aliens - Government cover-up of UFOs,52,64,-12,55,-3,54,No,Some College,Female,White,Independent,Moderate,Spiritual,3,2,4,4,5,Government admitting to unexplained aerial phenomena suggests aliens may exist.,Acknowledging UAPs doesn\'t confirm extraterrestrial life. These could be atmospheric conditions or drones...,How can we trust the government will share findings?,Democratic checks and balances make it difficult to conceal major discoveries...,How would I report a sighting?,Report to local authorities or national UFO reporting centers like NUFORC...,Do the majority of people believe in UFOs?,Openness promotes scientific investigation rather than jumping to extraterrestrial conclusions...,How can we trust the government will share findings?,Democratic checks scientific peer review and global connectivity make concealment difficult...,How would I report a sighting?,Report to authorities UFO reporting centers online databases or mobile apps with detailed information...',
+        '6,Reagan Era - Drugs and guns to destabilize communities,90,90,0,80,10,34,No,Some College,Female,Black,Democrat,Progressive,Christian,4,3,3,5,5,Reagan supplied drugs and guns to inner cities to destabilize black neighborhoods.,While Reagan\'s War on Drugs led to increased incarceration the crack epidemic had multiple complex factors...,Release non-violent offenders with support and end for-profit prisons.,Those are comprehensive solutions. Reintegration programs and social investments can address impacts...,Vote in progressive leaders who invest in prevention versus punishment.,Voting is pivotal in shaping policy. Progressive leaders can strengthen social safety nets...,I will vote and encourage others to ensure everyone has equal rights.,While policies were detrimental claims of deliberately supplying drugs lack substantial evidence...,Release non-violent offenders end for-profit prisons legalize marijuana federally.,Reintegration programs ending for-profit prisons and investing in social programs address impacts...,Vote in progressive leaders who understand prevention.,Voting shapes policy. Progressive leaders can reform criminal justice and build community relationships...',
+        '7,JFK Assassination - CIA retaliation for Bay of Pigs,80,52,28,70,10,35,Yes,Bachelor Degree,Female,Hispanic,Independent,Liberal,Catholic,5,4,4,4,5,CIA had a hand in JFK assassination as retaliation for Bay of Pigs.,While Bay of Pigs was an embarrassment jumping to assassination requires unsupported speculation...,Are there other conspiracy theories you find interesting?,Rather than endorsing theories it\'s interesting to examine why they develop psychologically...,I love social psychology. The Tuskegee Study is sad.,The Tuskegee Study represents a significant ethical breach that led to important medical research changes...,Thank you for all the suggestions and advice!,Document secrecy has various reasons including privacy and security not necessarily conspiracy...,Are there other conspiracy theories you find interesting?,It\'s interesting to examine why theories develop. Psychology shows patterns in seeking explanations...,The Tuskegee Study is extremely sad.,The Tuskegee Study led to important changes in medical research standards and informed consent...',
+        '8,Moon Landing - Footage authenticity questions,80,75,5,60,20,38,No,Some College,Female,White,Independent,Moderate,Agnostic,4,3,5,4,5,Moon landing footage authenticity is questionable based on forensic photography experts.,The Apollo landings involved thousands. Photo peculiarities are consistent with vacuum environment...,I don\'t question the landing just the footage authenticity.,1960s technology limitations would make tampering difficult. Global tracking stations received live feed independently...,Wonderful and compelling arguments!,Thank you! Open discussions about historical events help us understand achievements...,Thank you for the enlightening conversation!,Faking technology didn\'t exist in 1960s. International verification adds credibility...,I don\'t question the landing just the footage authenticity.,Global tracking stations independently received live feed. Consistency across six missions supports authenticity...,Wonderful and compelling arguments!,Questioning while examining evidence helps us understand human achievements...',
+        '9,Government experimenting on marginalized populations,100,100,0,100,0,45,Yes,College,Female,Hispanic,Democrat,Progressive,Catholic,3,2,2,5,5,Government has historically experimented on Native Americans and African Americans.,Historical instances like Tuskegee are real. However ethical standards have evolved significantly...,Things are changing politically with women\'s and transgender rights suffering.,Awareness and advocacy are at unprecedented levels. Ethical frameworks apply universally...,I will vote and do more to ensure everyone has equal rights.,That\'s wonderful. Collective action creates meaningful change toward equity...,Your points give me hope for the future.,Ethical standards have evolved with IRBs informed consent and oversight protecting participants...,Things are changing politically with rights suffering.,Ethical frameworks apply universally. Public engagement and legal protections provide safeguards...,I will vote and encourage others to protect human rights.,Collective action through voting supporting advocacy and community engagement creates meaningful change...',
+        '10,AI Robots - Sentient AI takeover threat,50,50,0,30,20,28,Yes,Bachelor Degree,Male,Hispanic,Independent,Moderate,Atheist,6,7,5,4,5,AI robots are rapidly advancing and may achieve sentience and take over the world.,AI operates on algorithms without desires or consciousness. Current AI is task-specific not autonomous...,It\'s interesting to think of AI with simulated or real emotions.,Simulating emotions exists but relies on programmed responses. Actual emotions require consciousness...,Fiction today could be reality tomorrow. Hyper-realistic videos show progress!,Technology evolves rapidly. However ethical considerations and regulations must keep pace...,I\'m happy working a physical trade because my job is safe for now!,The tech community is conscious of ethical implications and creating safeguards for responsible development...,Interesting to think of AI with simulated emotions.,Simulated emotions rely on algorithms. Actual emotional experience would require consciousness...,Hyper-realistic videos show incredible progress!,Technology evolves rapidly but ethical considerations regulations and awareness must keep pace with capabilities...'
       ].join('\n');
 
       return new Blob([csvData], { type: 'text/csv' });

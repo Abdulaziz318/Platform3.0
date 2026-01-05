@@ -50,7 +50,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         { name: 'My Experiments', path: '/dashboard/experiments', icon: FlaskConical },
         { name: 'Create Experiment', path: '/dashboard/experiments/create', icon: Plus },
         { name: 'Datasets', path: '/dashboard/datasets', icon: Database },
-        { name: 'Personas', path: '/dashboard/personas', icon: FileText },
+        { name: 'Instruction Prompts', path: '/dashboard/personas', icon: FileText },
       ]
     },
     {
